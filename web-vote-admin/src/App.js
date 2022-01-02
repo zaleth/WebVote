@@ -2,8 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 import React from 'react';
 import Parse from './index';
+import ElectionDay from './ElectionDay';
+import LoginPage from './LoginPage';
 
-class ListElections extends React.Component {
+class ListElectionDays extends React.Component {
 
   constructor(props) {
     super(props)
@@ -16,13 +18,17 @@ class ListElections extends React.Component {
   }
 
   componentDidMount() {
-    const Election = Parse.Object.extend('Election')
-    const query = new Parse.Query(Election)
+    const ElectionDay = Parse.Object.extend('ElectionDay')
+    const query = new Parse.Query(ElectionDay)
     const list = []
 
-    query.get().then((elem) => {
-      list.push(elem)
-    })
+    query.find().then((result) => {
+      result.forEach( (elem) => {
+        list.push(elem)
+      });
+    }, (error) => {
+      console.log("Error loading election days: " + error);
+    });
 
     this.setState( {eList: list} )
 
@@ -74,7 +80,7 @@ class ListElections extends React.Component {
       <div className="list">
       <ul>
         {this.state.eList.map( (e) =>
-        <Election elem={e} edit={this.editElection} del={this.deleteElection}/> )}
+        <ElectionDay elem={e} edit={this.editElection} del={this.deleteElection}/> )}
       </ul>
       { this.state.idToEdit !== null ?
       <EditElection id={this.state.idToEdit} update={this.updateElection} cancel={this.cancelUpdate}/> :
@@ -203,11 +209,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <ListElections />
+        <LoginPage />
       </header>
     </div>
   );
