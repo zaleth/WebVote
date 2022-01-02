@@ -1,0 +1,10 @@
+{
+  "name": "webvote",
+  "description": "parse-server for WebVote",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "parse-server": "^3.9.0"
+  }
+}
