@@ -4,6 +4,10 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const Parse = require('parse');
+Parse.initialize("WebVote");
+Parse.serverURL = 'http://localhost:1337/parse';
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
@@ -15,3 +19,5 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+export default Parse;
