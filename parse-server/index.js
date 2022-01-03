@@ -17,6 +17,7 @@ var office = new ParseServer({
   masterKey: 'WebVoteMasterKey'
 });
 
+
 var voter = new ParseServer({
   databaseURI: 'mongodb://127.0.0.1:27017/parse',
   cloud: './cloud/main.js',
