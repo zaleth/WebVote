@@ -5,8 +5,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const Parse = require('parse');
-Parse.initialize("WebVoteAdmin");
-Parse.serverURL = 'http://localhost:1337/parse';
+Parse.initialize("WebVoteOffice");
+Parse.serverURL = 'http://localhost:1338/office';
 
 ReactDOM.render(
   <React.StrictMode>
