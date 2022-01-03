@@ -12,14 +12,17 @@ class Election extends React.Component {
         console.log("Election ID: " + props.id);
         this.state = {
             id: props.id,
+            voteID: props.voter,
             name: "",
             votes: 1,
             cList: [],
             collapsed: true,
-            newCandidate: false,
+            currentCandidate: "",
+            chosenCandidates: [],
         }
-        this.delete = props.delete;
-        this.addNewCandidate = this.addNewCandidate.bind(this);
+
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidMount() {
@@ -40,6 +43,7 @@ class Election extends React.Component {
                             name: c.get('name'),
                         });
                     });
+                    console.log("Found " + list.length + " candidates for " + e.id);
                 }, (error) => {
                     console.log("Error loading candidate: " + error);
                 })
@@ -55,32 +59,80 @@ class Election extends React.Component {
 
     }
 
-    addNewCandidate(e) {
-        const list = this.state.cList;
-        list.push(e);
-        console.log("Added candidate " + e.id + ": " + e.get('name'));
-        this.setState({ 'cList': list, newCandidate: false });
+    registerVote(elID, cID, vID) {
+        const Vote = Parse.Object.extend('Vote');
+        const vote = new Vote();
+        vote.set('elID', elID);
+        vote.set('cID', cID);
+        vote.set('vID', vID);
+        vote.save().then( (res) => {
+
+        }, (error) => {
+
+        });
     }
 
-    deleteCandidate(id) {
-        const list = [];
-        this.state.cList.forEach( (e) => {
-            if(e.id !== id)
-                list.push(e);
-        });
-        // delete from database before we update the list in state
-        const Cand = Parse.Object.extend('Candidate');
-        const query = new Parse.Query(Cand);
-        query.get(id).then( (e) => {
-            e.destroy();
+    handleSubmit(event) {
+        // has this voter voted already?
+        const Vote = Parse.Object.extend('Vote');
+        const query = new Parse.Query(Vote);
+        query.equalTo('vID', this.state.voteID);
+        query.equalTo('elID', this.state.id);
+        query.find().then( (res) => {
+            if(res.length > 0) {
+                console.log(res);
+                alert("You have already voted in this election");
+            } else {
+                // register the votes
+                if(this.state.votes > 1) {
+                    this.state.chosenCandidates.forEach( (e) => {
+                        this.registerVote(this.state.id, e, this.state.voteID);
+                    });
+                } else {
+                    this.registerVote(this.state.id, this.state.currentCandidate, this.state.voteID);
+                }
+                alert("Thank you for voting");
+            }
         }, (error) => {
-            console.log(error);
+            console.log("Error casting vote: " + error);
         });
-        this.setState( {cList: list} );
+        event.preventDefault();
     }
+
+    handleChange(event) {
+        //console.log(event);
+        //console.log(event.target.id); // this is the candidate
+        //console.log(event.target.name); // this is the election
+        const myState = this.state;
+        if(myState.votes > 1) {
+            if(event.target.checked) {
+                console.log("checked");
+                if(myState.chosenCandidates.length < myState.votes)
+                    myState.chosenCandidates.push(event.target.id);
+                else {
+                    alert("Maximum number of candidates selected");
+                    // uncheck
+                    event.target.checked = false;
+                }
+            } else {
+                console.log("unchecked");
+                const list = [];
+                myState.chosenCandidates.forEach( (e) => {
+                    if(e !== event.target.id)
+                        list.push(e);
+                });
+                this.setState( {chosenCandidates: list} );
+            }
+        } else {
+            this.setState( {currentCandidate: event.target.id} );
+        }
+    }
+
 
     render() {
         const myState = this.state;
+        //console.log(myState.cList.length + " candidates");
+        const type = myState.votes > 1 ? "checkbox" : "radio";
         return(
             <div>
             <div>
@@ -88,22 +140,19 @@ class Election extends React.Component {
                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button> }
-                <button name="delete" onClick={() => this.delete()}>Delete</button>
+                
             </div>
             <div>
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
-                    <ul>
-                    {myState.cList.map( (e) =>
-                        <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}/>
-                        </li>)}
-                    </ul>
+                    <form onSubmit={this.handleSubmit}>
+                        {myState.cList.map( (e) => { 
+                            return(<p><input id={e.id} type={type} name={myState.id} 
+                                onChange={this.handleChange} value={e.id} key={e.id}/>
+                            <label htmlFor={e.id}>{e.name}</label></p>)})}
+                        <input type="submit" value="Cast vote" />
+                    </form>
                 : ""}
-            </div>
-            <div>{myState.collapsed ? "" : 
-                <div>{myState.newCandidate ?
-                <AddCandidateForm elID={myState.id} onSubmit={this.addNewCandidate} 
-                onCancel={()=>this.setState({newCandidate: false})}/> : 
-                <button onClick={()=>this.setState({newCandidate: true})}>Add Candidate</button>}</div>}
+            
             </div>
             </div>
     )
@@ -112,7 +161,7 @@ class Election extends React.Component {
 
 Election.propTypes = {
     id: PropTypes.string.isRequired,
-    delete: PropTypes.func.isRequired,
+    voter: PropTypes.string.isRequired,
 };
 
 export default Election;

@@ -7,8 +7,9 @@ class Candidate extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { id: props.id, elID: "", name: "", };
-        this.delete = props.delete;
+        this.state = { id: props.id, elID: "", name: "", grp: props.grp, votes: parseInt(props.votes), };
+        this.onChange = props.onChange;
+        console.log("Candidate created");
     }
 
     componentDidMount() {
@@ -29,15 +30,21 @@ class Candidate extends React.Component {
     }
 
     render() {
+        const myState = this.state;
+        const type = myState.votes > 1 ? "checkbox" : "radio";
+        console.log("Candidate.render()");
         return(
-            <div>{this.state.name} <button name="delete" onClick={() => this.delete()}>Delete</button></div>
+            <div><input id={myState.id} type={type} name={myState.grp} onChange={this.onChange}/>
+            <label htmlFor={myState.id}>{myState.name}</label></div>
         );
     }
 }
 
 Candidate.propTypes = {
     id: PropTypes.string.isRequired,
-    delete: PropTypes.func.isRequired,
+    votes: PropTypes.string.isRequired,
+    grp: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default Candidate;

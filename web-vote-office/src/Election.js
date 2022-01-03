@@ -18,9 +18,12 @@ class Election extends React.Component {
             collapsed: true,
             open: true,
             newCandidate: false,
+            sumVotes: 0,
+            castVotes: [],
         }
         this.delete = props.delete;
         this.addNewCandidate = this.addNewCandidate.bind(this);
+        this.resetVotes = this.resetVotes.bind(this);
     }
 
     componentDidMount() {
@@ -58,6 +61,45 @@ class Election extends React.Component {
 
     }
 
+    countVotes() {
+        const Vote = Parse.Object.extend('Vote');
+        const query = new Parse.Query(Vote);
+        query.equalTo('elID', this.state.id);
+        query.find().then( (res) => {
+            const list = this.state.castVotes;
+            res.forEach( (e) => {
+                var isAdded = false;
+                const cID = e.get('cID');
+                for(var i = 0; (i < list.length) && (! isAdded); i++) {
+                    if(list[i].id === cID) {
+                        list[i].votes++;
+                        isAdded = true;
+                    }
+                }
+                if(! isAdded) {
+                    list.push( {id: cID, votes: 1});
+                }
+            });
+            this.setState({ castVotes: list, sumVotes: res.length});
+        }, (error) => {
+            console.log("Error counting votes: " + error);
+        });
+    }
+
+    votesForCand(cID) {
+        const list = this.state.castVotes;
+        for(var i = 0; i < list.length; i++) {
+            if(list[i].id === cID)
+                return list[i].votes;
+        }
+        return 0;
+    }
+
+    setCollapsed(val) {
+        this.countVotes();
+        this.setState({ collapsed: val});
+    }
+
     addNewCandidate(e) {
         const list = this.state.cList;
         list.push(e);
@@ -78,8 +120,22 @@ class Election extends React.Component {
             e.destroy();
         }, (error) => {
             console.log(error);
-        });
+        });   
         this.setState( {cList: list} );
+    }
+
+    resetVotes() {
+        const Vote = Parse.Object.extend('Vote');
+        const query = new Parse.Query(Vote);
+        query.equalTo('elID', this.state.id);
+        query.find().then( (res) => {
+            res.forEach( (e) => {
+                e.destroy();
+            });
+        }, (error) => {
+            console.log("Error clearing votes: " + error);
+        });
+        this.setState({ castVotes: [], sumVotes: 0});
     }
 
     render() {
@@ -87,18 +143,19 @@ class Election extends React.Component {
         return(
             <div>
             <div>
-                {myState.name} ( {myState.votes} )
+                {myState.name} ( {myState.votes} ) [{myState.sumVotes}]
                 {myState.collapsed 
-                    ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>
-                    : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button> }
+                    ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
+                    : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button> }
                 <button>{myState.open ? "Close" : "Open"}</button>
+                <button onClick={this.resetVotes}>Reset votes</button>
             </div>
             <div>
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
                     <ul>
                     {myState.cList.map( (e) =>
                         <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}/>
-                        </li>)}
+                        [{this.votesForCand(e.id)}]</li>)}
                     </ul>
                 : ""}
             </div>
