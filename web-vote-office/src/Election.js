@@ -14,16 +14,20 @@ class Election extends React.Component {
             id: props.id,
             name: "",
             votes: 1,
+            voters: 0,
             cList: [],
             collapsed: true,
             open: true,
             newCandidate: false,
             sumVotes: 0,
             castVotes: [],
+            pollInterval: 5000, // poll every 5 seconds
         }
         this.delete = props.delete;
         this.addNewCandidate = this.addNewCandidate.bind(this);
         this.resetVotes = this.resetVotes.bind(this);
+        this.toggleOpen = this.toggleOpen.bind(this);
+        this.tick = this.tick.bind(this);
     }
 
     componentDidMount() {
@@ -58,7 +62,28 @@ class Election extends React.Component {
                 console.log("Error getting election: " + error);
             });
         }
+        this.interval = setInterval(this.tick, this.state.pollInterval);
+    }
 
+    componentDidUpdate(prevProps, prevState) {
+        if((this.state.open) && (!prevState.open)) {
+            // election was just opened, start the timer
+            this.interval = setInterval(this.tick, this.state.pollInterval);
+        } else if((! this.state.open) && (prevState.open)) {
+            // election was just closed, cancel the timer and poll one last time
+            clearInterval(this.interval);
+            this.tick();
+        }
+    }
+
+    componentWillUnmount() {
+        // cancel the poll timer
+        clearInterval(this.interval);
+    }
+
+    tick() {
+        this.countVotes();
+        console.log("tick");
     }
 
     countVotes() {
@@ -66,21 +91,43 @@ class Election extends React.Component {
         const query = new Parse.Query(Vote);
         query.equalTo('elID', this.state.id);
         query.find().then( (res) => {
-            const list = this.state.castVotes;
+            const list = [];
+            const voters = [];
             res.forEach( (e) => {
                 var isAdded = false;
                 const cID = e.get('cID');
+                // has this candidate received votes already?
                 for(var i = 0; (i < list.length) && (! isAdded); i++) {
                     if(list[i].id === cID) {
+                        // if so, increment the counter
                         list[i].votes++;
                         isAdded = true;
                     }
                 }
+                // otherwise, add them to the list
                 if(! isAdded) {
                     list.push( {id: cID, votes: 1});
                 }
+
+                // for multi elections, we need to count the number of voters as well
+                // in SQL this could be done by a COUNT DISTINCT ORDER BY vID
+                // maybe there is something similar for Parse.Query
+                if(this.state.votes > 1) {
+                    const vID = e.get('vID');
+                    isAdded = false;
+                    // has this voter been added already already?
+                    for(i = 0; (i < voters.length) && (! isAdded); i++) {
+                        if(voters[i] === vID) {
+                            isAdded = true;
+                        }
+                    }
+                    // otherwise, add them to the list
+                    if(! isAdded) {
+                        voters.push( vID );
+                    }
+                }
             });
-            this.setState({ castVotes: list, sumVotes: res.length});
+            this.setState({ castVotes: list, sumVotes: res.length, voters: voters.length });
         }, (error) => {
             console.log("Error counting votes: " + error);
         });
@@ -92,12 +139,47 @@ class Election extends React.Component {
             if(list[i].id === cID)
                 return list[i].votes;
         }
+        // if the candidate is not in the list, they have 0 votes
         return 0;
     }
 
     setCollapsed(val) {
-        this.countVotes();
+        //this.countVotes();
         this.setState({ collapsed: val});
+    }
+
+    toggleOpen() {
+        if(this.state.open) {
+            this.setState( { open: false} );
+            // publish state to the database
+            const Elec = Parse.Object.extend('Election');
+            const query = new Parse.Query(Elec);
+            query.get(this.state.id).then( (e) => {
+                e.set('open', false);
+                e.save().then( (e) => {
+                    console.log("Election saved successfully");
+                }, (error) => {
+                    console.log("Error saving election: " + error);
+                });
+            }, (error) => {
+                console.log("Error fetching election: " + error);
+            });
+        } else {
+            this.setState( { open: true} );
+            // publish state to the database
+            const Elec = Parse.Object.extend('Election');
+            const query = new Parse.Query(Elec);
+            query.get(this.state.id).then( (e) => {
+                e.set('open', true);
+                e.save().then( (e) => {
+                    console.log("Election saved successfully");
+                }, (error) => {
+                    console.log("Error saving election: " + error);
+                });
+            }, (error) => {
+                console.log("Error fetching election: " + error);
+            });
+        }
     }
 
     addNewCandidate(e) {
@@ -125,6 +207,9 @@ class Election extends React.Component {
     }
 
     resetVotes() {
+        if(this.state.open)
+            return;
+
         const Vote = Parse.Object.extend('Vote');
         const query = new Parse.Query(Vote);
         query.equalTo('elID', this.state.id);
@@ -143,19 +228,19 @@ class Election extends React.Component {
         return(
             <div>
             <div>
-                {myState.name} ( {myState.votes} ) [{myState.sumVotes}]
+                {myState.name} ( {myState.votes} ) [{(myState.votes > 1) ? myState.voters : myState.sumVotes}]
                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button> }
-                <button>{myState.open ? "Close" : "Open"}</button>
-                <button onClick={this.resetVotes}>Reset votes</button>
+                <button onClick={this.toggleOpen}>{myState.open ? "Close" : "Open"}</button>
+                <button onClick={this.resetVotes} disabled={myState.open}>Reset votes</button>
             </div>
             <div>
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
                     <ul>
                     {myState.cList.map( (e) =>
                         <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}/>
-                        [{this.votesForCand(e.id)}]</li>)}
+                        {myState.open ? "" : [this.votesForCand(e.id)]} </li>)}
                     </ul>
                 : ""}
             </div>

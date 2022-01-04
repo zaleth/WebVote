@@ -12,10 +12,13 @@ class VoterPage extends React.Component {
         this.state = {
             id: props.id,
             edID: props.edID,
+            edName: "",
             elections: [],
-
+            logout: false,
         }
-
+        this.props = props;
+        this.doLogout = props.logout;
+        this.logout = this.logout.bind(this);
     }
 
     componentDidMount() {
@@ -34,10 +37,23 @@ class VoterPage extends React.Component {
             result.forEach( (e) => {
                 list.push(e.id);
             });
+            const EDay = Parse.Object.extend('ElectionDay');
+            const iQuery = new Parse.Query(EDay);
+            iQuery.get(this.state.edID).then( (res) => {
+                console.log("Found EDay " + res.get('edName'))
+                this.setState( {edName: res.get('edName')});
+            }, (error) => {
+                console.log("Error getting election day: " + error);
+            });
             this.setState( {elections: list} );
         }, (error) => {
             console.log("Error loading elections: " + error);
         });
+    }
+
+    logout() {
+        this.doLogout();
+        this.props.history.push('/')
     }
 
     render() {
@@ -45,15 +61,16 @@ class VoterPage extends React.Component {
         const eList = this.state.elections;
 
         return(
+
             <div className="admin">
-                <p>Elections</p>
+                <p>Elections for {this.state.edName}</p>
                 <div className="list">
                     <ul>
                         {eList.map( (e) =>
                         <li key={e}><Election id={e} voter={this.state.id}/></li> )}
                     </ul>
-                    
                 </div>
+                <button name="logout" onClick={this.logout}>Log out</button>
             </div>
         )
     }

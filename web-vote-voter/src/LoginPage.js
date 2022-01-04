@@ -10,6 +10,11 @@ class LoginPage extends React.Component {
         this.state = { loggedIn: false, voterID: "", edID: "", msg: "" };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.doLogout = this.doLogout.bind(this);
+    }
+
+    doLogout() {
+        this.setState( {loggedIn: false} );
     }
 
     handleChange(event) {
@@ -34,7 +39,9 @@ class LoginPage extends React.Component {
     render() {
         return (
             <div>
-                {this.state.loggedIn ? <VoterPage id={this.state.voterID} edID={this.state.edID}/> :
+                <h2>WebVote Voter</h2>
+                {this.state.loggedIn ? <VoterPage id={this.state.voterID} edID={this.state.edID}
+                logout={this.doLogout}/> :
                 <form onSubmit={this.handleSubmit}>
                     <label>Voter ID</label>
                     <input type="text" name="voterID" value={this.state.voterID} onChange={this.handleChange} /> 

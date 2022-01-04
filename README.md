@@ -13,3 +13,6 @@ The platform is split into three parts: admin, office and voter. Currently, they
 The Admin component handles election setup; creating election days and adding elections and candidates to that day. The Office component generates voter IDs and displays the results of the vote. The Voter component is where each voter casts their vote using their voter ID (this is the 10-character object ID assigned by Parse).
 
 It is intended that the Admin and Office parts be restricted, for example using a private network, while the Voter part should be visible to the web at large. There is currently no authentication needed, but it can easily be added using the builtin User module of Parse.
+
+# Quick installation
+Currently the code is setup to run on localhost, using ports 3000-3002 for the webapp and 1337-1339 for the Parse backend. Frontend ports are set in the .env file for each page.
