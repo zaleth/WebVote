@@ -21,11 +21,13 @@ class Election extends React.Component {
             newCandidate: false,
             sumVotes: 0,
             castVotes: [],
+            pollInterval: 5000, // poll every 5 seconds
         }
         this.delete = props.delete;
         this.addNewCandidate = this.addNewCandidate.bind(this);
         this.resetVotes = this.resetVotes.bind(this);
         this.toggleOpen = this.toggleOpen.bind(this);
+        this.tick = this.tick.bind(this);
     }
 
     componentDidMount() {
@@ -60,7 +62,28 @@ class Election extends React.Component {
                 console.log("Error getting election: " + error);
             });
         }
+        this.interval = setInterval(this.tick, this.state.pollInterval);
+    }
 
+    componentDidUpdate(prevProps, prevState) {
+        if((this.state.open) && (!prevState.open)) {
+            // election was just opened, start the timer
+            this.interval = setInterval(this.tick, this.state.pollInterval);
+        } else if((! this.state.open) && (prevState.open)) {
+            // election was just closed, cancel the timer and poll one last time
+            clearInterval(this.interval);
+            this.tick();
+        }
+    }
+
+    componentWillUnmount() {
+        // cancel the poll timer
+        clearInterval(this.interval);
+    }
+
+    tick() {
+        this.countVotes();
+        console.log("tick");
     }
 
     countVotes() {
@@ -121,7 +144,7 @@ class Election extends React.Component {
     }
 
     setCollapsed(val) {
-        this.countVotes();
+        //this.countVotes();
         this.setState({ collapsed: val});
     }
 

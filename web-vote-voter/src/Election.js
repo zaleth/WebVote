@@ -111,9 +111,20 @@ class Election extends React.Component {
         if(myState.votes > 1) {
             if(event.target.checked) {
                 console.log("checked");
-                if(myState.chosenCandidates.length < myState.votes)
-                    myState.chosenCandidates.push(event.target.id);
-                else {
+                if(myState.chosenCandidates.length < myState.votes) {
+                    const list = myState.chosenCandidates;
+                    var isChecked = false;
+                    for(var i = 0; (i < list.length) && !isChecked; i++) {
+                        console.log("comparing " + event)
+                        if(event.target.id === list[i])
+                            isChecked = true;
+                    }
+                    if(!isChecked) {
+                        list.push(event.target.id);
+                        this.setState( {chosenCandidates: list});
+                    }
+
+                } else {
                     alert("Maximum number of candidates selected");
                     // uncheck
                     event.target.checked = false;
