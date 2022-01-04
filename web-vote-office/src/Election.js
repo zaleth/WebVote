@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Parse from './index';
 import Candidate from './Candidate';
-import AddCandidateForm from './AddCandidateForm';
 
 class Election extends React.Component {
 
@@ -182,13 +181,6 @@ class Election extends React.Component {
         }
     }
 
-    addNewCandidate(e) {
-        const list = this.state.cList;
-        list.push(e);
-        console.log("Added candidate " + e.id + ": " + e.get('name'));
-        this.setState({ 'cList': list, newCandidate: false });
-    }
-
     deleteCandidate(id) {
         const list = [];
         this.state.cList.forEach( (e) => {
@@ -243,12 +235,6 @@ class Election extends React.Component {
                         {myState.open ? "" : [this.votesForCand(e.id)]} </li>)}
                     </ul>
                 : ""}
-            </div>
-            <div>{myState.collapsed ? "" : 
-                <div>{myState.newCandidate ?
-                <AddCandidateForm elID={myState.id} onSubmit={this.addNewCandidate} 
-                onCancel={()=>this.setState({newCandidate: false})}/> : 
-                <button onClick={()=>this.setState({newCandidate: true})}>Add Candidate</button>}</div>}
             </div>
             </div>
     )
