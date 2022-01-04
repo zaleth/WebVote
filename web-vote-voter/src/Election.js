@@ -2,8 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Parse from './index';
-import Candidate from './Candidate';
-import AddCandidateForm from './AddCandidateForm';
+
 
 class Election extends React.Component {
 
@@ -180,7 +179,7 @@ class Election extends React.Component {
 
     isChecked(e) {
         const myState = this.state;
-        var res = false;
+
         if (myState.votes > 1) {
             const list = myState.chosenCandidates; var isChosen = false;
             for(var i = 0; (i < list.length) && (! isChosen); i++) 

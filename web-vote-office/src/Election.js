@@ -116,7 +116,7 @@ class Election extends React.Component {
                     const vID = e.get('vID');
                     isAdded = false;
                     // has this voter been added already already?
-                    for(var i = 0; (i < voters.length) && (! isAdded); i++) {
+                    for(i = 0; (i < voters.length) && (! isAdded); i++) {
                         if(voters[i] === vID) {
                             isAdded = true;
                         }
@@ -225,7 +225,6 @@ class Election extends React.Component {
 
     render() {
         const myState = this.state;
-        const disable = myState.open ? "disabled" : "";
         return(
             <div>
             <div>
