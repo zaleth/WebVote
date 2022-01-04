@@ -25,6 +25,7 @@ class AddElectionForm extends React.Component {
         e.set('name', this.state.name);
         e.set('votes', this.state.votes.toString());
         e.set('cList', []);
+        e.set('open', true);
         e.save().then( (id) => {this.props.onSubmit(e);} );
         event.preventDefault();
     }

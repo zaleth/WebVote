@@ -13,6 +13,9 @@ class AdminPage extends React.Component {
             eDayIds: [],
             voterIDToShow: "",
         }
+        this.props = props;
+        this.doLogout = props.logout;
+        this.logout = this.logout.bind(this);
         this.genVoterID = this.genVoterID.bind(this);
         this.clearVoterID = this.clearVoterID.bind(this);
     }
@@ -54,6 +57,11 @@ class AdminPage extends React.Component {
         this.setState({voterIDToShow: ""});
     }
 
+    logout() {
+        this.doLogout();
+        this.props.history.push('/')
+    }
+
     render() {
 
         const eDayList = this.state.eDayIds;
@@ -76,6 +84,7 @@ class AdminPage extends React.Component {
                     <button onClick={this.clearVoterID}>Clear ID</button></p>
                     : "" }
                 </div>
+                <button name="logout" onClick={this.logout}>Log out</button>
             </div>
         )
     }

@@ -129,9 +129,9 @@ class ElectionDay extends React.Component {
                     : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button>
                     
                 } <button onClick={() => this.delete()}>Delete</button>
-                <div>
+                <div >
                     {((!myState.collapsed) && (myState.elections.length > 0)) ?
-                        <ul>
+                        <ul >
                         {myState.elections.map( (e) =>
                             <li key={e.id}><Election id={e.id} delete={() => this.deleteElection(e.id)}/>
                             </li>)}

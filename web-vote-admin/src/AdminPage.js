@@ -16,6 +16,9 @@ class AdminPage extends React.Component {
         this.eDayInfo = { name: "", date: "" };
         this.addElection = this.addElection.bind(this);
         this.updateEDay = this.updateEDay.bind(this);
+        this.props = props;
+        this.doLogout = props.logout;
+        this.logout = this.logout.bind(this);
         console.log("Default " + this.eDayInfo.name + "@" + this.eDayInfo.date);
     }
 
@@ -95,6 +98,12 @@ class AdminPage extends React.Component {
         });
         console.log("Done");
     }
+
+    logout() {
+        this.doLogout();
+        this.props.history.push('/')
+    }
+
     render() {
 
         const eDayList = this.state.eDayIds;
@@ -118,6 +127,7 @@ class AdminPage extends React.Component {
                     : <button name="addElection" onClick={() => 
                         { this.setState({showAddElectionForm: true})}}>Add election day</button>}
                 </div>
+                <button name="logout" onClick={this.logout}>Log out</button>
                 <div className="debug">
                     <button name="wipeDB" onClick={this.wipeDB}>Wipe the database</button>
                 </div>

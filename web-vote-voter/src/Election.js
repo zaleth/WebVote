@@ -17,6 +17,7 @@ class Election extends React.Component {
             votes: 1,
             cList: [],
             collapsed: true,
+            open: true,
             currentCandidate: "",
             chosenCandidates: [],
         }
@@ -51,6 +52,7 @@ class Election extends React.Component {
                         name: e.get('name'),
                         votes: e.get('votes'),
                         cList: list,
+                        open: e.get('open'),
                     });
             }, (error) => {
                 console.log("Error getting election: " + error);
@@ -81,6 +83,7 @@ class Election extends React.Component {
         query.find().then( (res) => {
             if(res.length > 0) {
                 console.log(res);
+                this.setState( {collapsed: true} );
                 alert("You have already voted in this election");
             } else {
                 // register the votes
@@ -91,6 +94,7 @@ class Election extends React.Component {
                 } else {
                     this.registerVote(this.state.id, this.state.currentCandidate, this.state.voteID);
                 }
+                this.setState( {collapsed: true} );
                 alert("Thank you for voting");
             }
         }, (error) => {
@@ -128,6 +132,16 @@ class Election extends React.Component {
         }
     }
 
+    setCollapsed(val) {
+        const Elec = Parse.Object.extend('Election');
+        const query = new Parse.Query(Elec);
+        query.get(this.state.id).then( (e) => {
+            this.setState( {open: e.get('open')} );
+        }, (error) => {
+            console.log("Error refreshing election data: " + error);
+        });
+        this.setState({ collapsed: val});
+    }
 
     render() {
         const myState = this.state;
@@ -138,8 +152,8 @@ class Election extends React.Component {
             <div>
                 {myState.name} ( {myState.votes} )
                 {myState.collapsed 
-                    ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>
-                    : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button> }
+                    ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
+                    : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button> }
                 
             </div>
             <div>
@@ -149,7 +163,7 @@ class Election extends React.Component {
                             return(<p><input id={e.id} type={type} name={myState.id} 
                                 onChange={this.handleChange} value={e.id} key={e.id}/>
                             <label htmlFor={e.id}>{e.name}</label></p>)})}
-                        <input type="submit" value="Cast vote" />
+                        <input type="submit" value="Cast vote" disabled={! myState.open}/>
                     </form>
                 : ""}
             

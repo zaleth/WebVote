@@ -24,6 +24,7 @@ class Election extends React.Component {
         this.delete = props.delete;
         this.addNewCandidate = this.addNewCandidate.bind(this);
         this.resetVotes = this.resetVotes.bind(this);
+        this.toggleOpen = this.toggleOpen.bind(this);
     }
 
     componentDidMount() {
@@ -66,7 +67,7 @@ class Election extends React.Component {
         const query = new Parse.Query(Vote);
         query.equalTo('elID', this.state.id);
         query.find().then( (res) => {
-            const list = this.state.castVotes;
+            const list = [];
             res.forEach( (e) => {
                 var isAdded = false;
                 const cID = e.get('cID');
@@ -100,6 +101,40 @@ class Election extends React.Component {
         this.setState({ collapsed: val});
     }
 
+    toggleOpen() {
+        if(this.state.open) {
+            this.setState( { open: false} );
+            // publish state to the database
+            const Elec = Parse.Object.extend('Election');
+            const query = new Parse.Query(Elec);
+            query.get(this.state.id).then( (e) => {
+                e.set('open', false);
+                e.save().then( (e) => {
+                    console.log("Election saved successfully");
+                }, (error) => {
+                    console.log("Error saving election: " + error);
+                });
+            }, (error) => {
+                console.log("Error fetching election: " + error);
+            });
+        } else {
+            this.setState( { open: true} );
+            // publish state to the database
+            const Elec = Parse.Object.extend('Election');
+            const query = new Parse.Query(Elec);
+            query.get(this.state.id).then( (e) => {
+                e.set('open', true);
+                e.save().then( (e) => {
+                    console.log("Election saved successfully");
+                }, (error) => {
+                    console.log("Error saving election: " + error);
+                });
+            }, (error) => {
+                console.log("Error fetching election: " + error);
+            });
+        }
+    }
+
     addNewCandidate(e) {
         const list = this.state.cList;
         list.push(e);
@@ -125,6 +160,9 @@ class Election extends React.Component {
     }
 
     resetVotes() {
+        if(this.state.open)
+            return;
+
         const Vote = Parse.Object.extend('Vote');
         const query = new Parse.Query(Vote);
         query.equalTo('elID', this.state.id);
@@ -140,6 +178,7 @@ class Election extends React.Component {
 
     render() {
         const myState = this.state;
+        const disable = myState.open ? "disabled" : "";
         return(
             <div>
             <div>
@@ -147,15 +186,15 @@ class Election extends React.Component {
                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button> }
-                <button>{myState.open ? "Close" : "Open"}</button>
-                <button onClick={this.resetVotes}>Reset votes</button>
+                <button onClick={this.toggleOpen}>{myState.open ? "Close" : "Open"}</button>
+                <button onClick={this.resetVotes} disabled={myState.open}>Reset votes</button>
             </div>
             <div>
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
                     <ul>
                     {myState.cList.map( (e) =>
                         <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}/>
-                        [{this.votesForCand(e.id)}]</li>)}
+                        {myState.open ? "" : [this.votesForCand(e.id)]} </li>)}
                     </ul>
                 : ""}
             </div>
