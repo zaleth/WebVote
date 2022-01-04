@@ -14,6 +14,7 @@ class Election extends React.Component {
             id: props.id,
             name: "",
             votes: 1,
+            voters: 0,
             cList: [],
             collapsed: true,
             open: true,
@@ -68,20 +69,42 @@ class Election extends React.Component {
         query.equalTo('elID', this.state.id);
         query.find().then( (res) => {
             const list = [];
+            const voters = [];
             res.forEach( (e) => {
                 var isAdded = false;
                 const cID = e.get('cID');
+                // has this candidate received votes already?
                 for(var i = 0; (i < list.length) && (! isAdded); i++) {
                     if(list[i].id === cID) {
+                        // if so, increment the counter
                         list[i].votes++;
                         isAdded = true;
                     }
                 }
+                // otherwise, add them to the list
                 if(! isAdded) {
                     list.push( {id: cID, votes: 1});
                 }
+
+                // for multi elections, we need to count the number of voters as well
+                // in SQL this could be done by a COUNT DISTINCT ORDER BY vID
+                // maybe there is something similar for Parse.Query
+                if(this.state.votes > 1) {
+                    const vID = e.get('vID');
+                    isAdded = false;
+                    // has this voter been added already already?
+                    for(var i = 0; (i < voters.length) && (! isAdded); i++) {
+                        if(voters[i] === vID) {
+                            isAdded = true;
+                        }
+                    }
+                    // otherwise, add them to the list
+                    if(! isAdded) {
+                        voters.push( vID );
+                    }
+                }
             });
-            this.setState({ castVotes: list, sumVotes: res.length});
+            this.setState({ castVotes: list, sumVotes: res.length, voters: voters.length });
         }, (error) => {
             console.log("Error counting votes: " + error);
         });
@@ -93,6 +116,7 @@ class Election extends React.Component {
             if(list[i].id === cID)
                 return list[i].votes;
         }
+        // if the candidate is not in the list, they have 0 votes
         return 0;
     }
 
@@ -182,7 +206,7 @@ class Election extends React.Component {
         return(
             <div>
             <div>
-                {myState.name} ( {myState.votes} ) [{myState.sumVotes}]
+                {myState.name} ( {myState.votes} ) [{(myState.votes > 1) ? myState.voters : myState.sumVotes}]
                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button> }

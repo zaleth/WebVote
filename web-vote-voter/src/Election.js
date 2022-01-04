@@ -132,7 +132,8 @@ class Election extends React.Component {
         }
     }
 
-    setCollapsed(val) {
+    refreshVote() {
+        // get election status
         const Elec = Parse.Object.extend('Election');
         const query = new Parse.Query(Elec);
         query.get(this.state.id).then( (e) => {
@@ -140,7 +141,44 @@ class Election extends React.Component {
         }, (error) => {
             console.log("Error refreshing election data: " + error);
         });
+
+        // get vote info
+        const Vote = Parse.Object.extend('Vote');
+        const iQuery = new Parse.Query(Vote);
+        iQuery.equalTo('elID', this.state.id);
+        iQuery.equalTo('vID', this.state.voteID);
+        iQuery.find().then( (res) => {
+            if(this.state.votes > 1) {
+                const list = [];
+                res.forEach( (e) => {
+                    list.push( e.get('cID') );
+                });
+                this.setState( {chosenCandidates: list} );
+            } else {
+                this.setState( {currentCandidate: res.get('cID') } );
+            }
+        }, (error) => {
+            console.log("Error getting vote info: " + error);
+        });
+    }
+
+    setCollapsed(val) {
+        this.refreshVote();
         this.setState({ collapsed: val});
+    }
+
+    isChecked(e) {
+        const myState = this.state;
+        var res = false;
+        if (myState.votes > 1) {
+            const list = myState.chosenCandidates; var isChosen = false;
+            for(var i = 0; (i < list.length) && (! isChosen); i++) 
+                if(e.id === list[i])
+                    isChosen = true;
+            return isChosen;
+        } else {
+            return (e.id === myState.currentCandidate);
+        }
     }
 
     render() {
@@ -161,7 +199,8 @@ class Election extends React.Component {
                     <form onSubmit={this.handleSubmit}>
                         {myState.cList.map( (e) => { 
                             return(<p><input id={e.id} type={type} name={myState.id} 
-                                onChange={this.handleChange} value={e.id} key={e.id}/>
+                                onChange={this.handleChange} value={e.id} key={e.id}
+                                checked={this.isChecked(e)} />
                             <label htmlFor={e.id}>{e.name}</label></p>)})}
                         <input type="submit" value="Cast vote" disabled={! myState.open}/>
                     </form>
