@@ -57,6 +57,27 @@ class AdminPage extends React.Component {
         this.setState({voterIDToShow: ""});
     }
 
+    eraseVoters(id) {
+        const Voter = Parse.Object.extend('Voter');
+        const query = new Parse.Query(Voter);
+        query.equalTo('edID', id);
+        query.limit(1000);
+        query.find().then( (res) => {
+            res.forEach( (e) => {
+            const Vote = Parse.Object.extend('Vote');
+            const iQuery = new Parse.Query(Vote);
+            iQuery.equalTo('vID', e.id);
+            iQuery.find().then( (ret) => {
+                ret.forEach( (v) => {
+                v.destroy();
+            });
+            }, (error) => {});
+            console.log("Voter destroyed");
+            e.destroy();
+            });
+        }, (error) => {});
+    }
+
     logout() {
         this.doLogout();
         this.props.history.push('/')
@@ -75,6 +96,7 @@ class AdminPage extends React.Component {
                         {eDayList.map( (e) =>
                         <li key={e}><ElectionDay id={e}/>
                         <button onClick={() => this.genVoterID(e)}>Add new voter</button>
+                        <button onClick={() => this.eraseVoters(e)}>Erase all voters</button>
                         </li> )}
                     </ul>
                 </div>

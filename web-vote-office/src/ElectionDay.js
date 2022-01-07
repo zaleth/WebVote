@@ -20,6 +20,7 @@ class ElectionDay extends React.Component {
         }
         this.addNewElection = this.addNewElection.bind(this);
         this.deleteElection = this.deleteElection.bind(this);
+        this.stuffBallots = this.stuffBallots.bind(this);
         this.delete = props.delete;
     }
 
@@ -36,11 +37,28 @@ class ElectionDay extends React.Component {
                 iQuery.equalTo('edID', id);
                 iQuery.find().then( (result) => {
                     result.forEach( (e) => {
+                        const cList = [];
+                        const Cand = Parse.Object.extend('Candidate');
+                        const iiQuery = new Parse.Query(Cand);
+                        iiQuery.equalTo('elID', e.id);
+                        iiQuery.find().then( (res) => {
+                            res.forEach( (c) => {
+                                cList.push( {
+                                    id: c.id,
+                                    elID: c.get('elID'),
+                                    name: c.get('name'),
+                                });
+                            });
+                        }, (error) => {
+                            console.log("Error loading candidate: " + error);
+                        });
+                        //console.log(e, e.get('votes'), parseInt(e.get('votes')));
+                        //console.log(cList);
                         list.push( {
                             'id': e.id,
-                            'name': e.name,
-                            'cList': e.cList,
-                            'votes': e.numVotes,
+                            'name': e.get('name'),
+                            'cList': cList,
+                            'votes': parseInt(e.get('votes')),
                         });
                     });
                     this.setState( {
@@ -56,6 +74,63 @@ class ElectionDay extends React.Component {
                 console.log("Error getting electionDay: " + error);
             });
         }
+        this.countVoters();
+    }
+
+    shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    min(a, b) {
+        if(a < b)
+            return a;
+        return b;
+    }
+
+    stuffBallots() {
+        const numVoters = 30;
+        const Voter = Parse.Object.extend('Voter');
+        const Vote = Parse.Object.extend('Vote');
+        const myState = this.state;
+
+        for(var i = 0; i < numVoters; i++) {
+            const v = new Voter();
+            v.set('edID', myState.id);
+            v.save().then( (res) => {
+                const vID = res.id;
+                myState.elections.forEach( (e) => {
+                    // to ensure we dont randomly pick the same candidate several times,
+                    // we instead shuffle the list (for each voter) and take the n first
+                    // candidates (with n being the number of candidates to chose)
+                    //console.log(e);
+                    const list = e.cList;
+                    if(list.length > 0) {
+                        //console.log(list + " ( " + e.votes + " )");
+                        this.shuffle(list);
+                        for(let c = 0; c < this.min(e.votes, list.length); c++) {
+                            //console.log("Voting in " + e.name);
+                            const vote = new Vote();
+                            vote.set('elID', e.id);
+                            vote.set('cID', list[c].id);
+                            vote.set('vID', vID);
+                            vote.save().then( (res) => {
+                                //console.log("Voted for " + list[c].name + " in " + e.name);
+                            }, (error) => {
+                                console.log("Error casting vote:" + error);
+                            });                
+                        }
+                    }
+                });
+                //console.log("Voter " + vID + " has voted");
+            }, (error) => {
+                console.log("Error creating new voter: " + error);
+            });
+    
+        }
+        console.log("Stuffing done, doing recount");
         this.countVoters();
     }
 
@@ -141,9 +216,9 @@ class ElectionDay extends React.Component {
         return(
                 <div>{myState.name} ({myState.date}) [{myState.voters} voters] {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
-                    : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button>
-                    
-                }
+                    : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button>}
+                    <button name="stuff" onClick={this.stuffBallots}>Stuff ballots</button>
+                
                 <div>
                     {((!myState.collapsed) && (myState.elections.length > 0)) ?
                         <ul>
