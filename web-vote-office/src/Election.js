@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Parse from './index';
 import Candidate from './Candidate';
-import AddCandidateForm from './AddCandidateForm';
 
 class Election extends React.Component {
 
@@ -21,10 +20,9 @@ class Election extends React.Component {
             newCandidate: false,
             sumVotes: 0,
             castVotes: [],
-            pollInterval: 5000, // poll every 5 seconds
+            pollInterval: 0, // poll interval in ms, set to 0 to disable polling
         }
         this.delete = props.delete;
-        this.addNewCandidate = this.addNewCandidate.bind(this);
         this.resetVotes = this.resetVotes.bind(this);
         this.toggleOpen = this.toggleOpen.bind(this);
         this.tick = this.tick.bind(this);
@@ -62,23 +60,28 @@ class Election extends React.Component {
                 console.log("Error getting election: " + error);
             });
         }
-        this.interval = setInterval(this.tick, this.state.pollInterval);
+        if(this.state.pollInterval > 0)
+            this.interval = setInterval(this.tick, this.state.pollInterval);
     }
 
     componentDidUpdate(prevProps, prevState) {
         if((this.state.open) && (!prevState.open)) {
             // election was just opened, start the timer
-            this.interval = setInterval(this.tick, this.state.pollInterval);
+            if(this.state.pollInterval > 0)
+                this.interval = setInterval(this.tick, this.state.pollInterval);
         } else if((! this.state.open) && (prevState.open)) {
             // election was just closed, cancel the timer and poll one last time
-            clearInterval(this.interval);
-            this.tick();
+            if(this.state.pollInterval > 0) {
+                clearInterval(this.interval);
+                this.tick();
+            }
         }
     }
 
     componentWillUnmount() {
         // cancel the poll timer
-        clearInterval(this.interval);
+        if(this.state.pollInterval > 0)
+            clearInterval(this.interval);
     }
 
     tick() {
@@ -90,6 +93,7 @@ class Election extends React.Component {
         const Vote = Parse.Object.extend('Vote');
         const query = new Parse.Query(Vote);
         query.equalTo('elID', this.state.id);
+        query.limit(1000);
         query.find().then( (res) => {
             const list = [];
             const voters = [];
@@ -97,7 +101,7 @@ class Election extends React.Component {
                 var isAdded = false;
                 const cID = e.get('cID');
                 // has this candidate received votes already?
-                for(var i = 0; (i < list.length) && (! isAdded); i++) {
+                for(let i = 0; (i < list.length) && (! isAdded); i++) {
                     if(list[i].id === cID) {
                         // if so, increment the counter
                         list[i].votes++;
@@ -116,7 +120,7 @@ class Election extends React.Component {
                     const vID = e.get('vID');
                     isAdded = false;
                     // has this voter been added already already?
-                    for(i = 0; (i < voters.length) && (! isAdded); i++) {
+                    for(let i = 0; (i < voters.length) && (! isAdded); i++) {
                         if(voters[i] === vID) {
                             isAdded = true;
                         }
@@ -135,7 +139,7 @@ class Election extends React.Component {
 
     votesForCand(cID) {
         const list = this.state.castVotes;
-        for(var i = 0; i < list.length; i++) {
+        for(let i = 0; i < list.length; i++) {
             if(list[i].id === cID)
                 return list[i].votes;
         }
@@ -144,7 +148,8 @@ class Election extends React.Component {
     }
 
     setCollapsed(val) {
-        //this.countVotes();
+        if(this.state.pollInterval === 0)
+            this.countVotes();  // if we don't poll, update votes
         this.setState({ collapsed: val});
     }
 
@@ -180,13 +185,6 @@ class Election extends React.Component {
                 console.log("Error fetching election: " + error);
             });
         }
-    }
-
-    addNewCandidate(e) {
-        const list = this.state.cList;
-        list.push(e);
-        console.log("Added candidate " + e.id + ": " + e.get('name'));
-        this.setState({ 'cList': list, newCandidate: false });
     }
 
     deleteCandidate(id) {
@@ -243,12 +241,6 @@ class Election extends React.Component {
                         {myState.open ? "" : [this.votesForCand(e.id)]} </li>)}
                     </ul>
                 : ""}
-            </div>
-            <div>{myState.collapsed ? "" : 
-                <div>{myState.newCandidate ?
-                <AddCandidateForm elID={myState.id} onSubmit={this.addNewCandidate} 
-                onCancel={()=>this.setState({newCandidate: false})}/> : 
-                <button onClick={()=>this.setState({newCandidate: true})}>Add Candidate</button>}</div>}
             </div>
             </div>
     )
