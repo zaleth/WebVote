@@ -44,19 +44,11 @@ class AdminPage extends React.Component {
     }
 
     addElection(event) {
-        const EDay = Parse.Object.extend('ElectionDay');
-        const ed = new EDay();
-        console.log("Saving " + this.eDayInfo.name + "@" + this.eDayInfo.date);
-        ed.set('edName', this.eDayInfo.name);
-        ed.set('edDate', this.eDayInfo.date);
-        ed.save().then( (e) => {
-            const list = this.state.eDayIds;
-            list.push(e.id);
-            this.setState( {eDayIds: list} );
-            console.log("Saved new election " + e.id + ": " + e.get('edName') + "@" + e.get('edDate'));
-        }, (error) => {
-            console.log("Error adding election: " + error);
-        });
+        const e = Parse.Cloud.run('addElectionDay', { name: this.eDayInfo.name, date: this.eDayInfo.date});
+        const list = this.state.eDayIds;
+        list.push(e.get('objectId'));
+        this.setState( {eDayIds: list} );
+        console.log("Saved new election " + e.get('objectId') + ": " + e.get('edName') + "@" + e.get('edDate'));
         this.setState( {showAddElectionForm: false} );
         event.preventDefault();
     }
@@ -71,31 +63,19 @@ class AdminPage extends React.Component {
     }
 
     deleteElectionDay(id) {
+        // delete from database before we update the list in state
+        Parse.Cloud.run('deleteElectionDay', { id: id});
         const list = [];
         this.state.eDayIds.forEach( (e) => {
             if(e !== id)
                 list.push(e);
-        });
-        // delete from database before we update the list in state
-        const EDay = Parse.Object.extend('ElectionDay');
-        const query = new Parse.Query(EDay);
-        query.get(id).then( (e) => {
-            e.destroy();
-        }, (error) => {
-            console.log(error);
         });
         this.setState( {eDayIds: list} );
     }
 
     wipeDB() {
         console.log("Clering database");
-        const EDay = Parse.Object.extend('ElectionDay');
-        const query = new Parse.Query(EDay);
-        query.find().then( (res) => {
-            res.forEach( (e) => { e.destroy(); });
-        }, (error) => {
-            console.log(error);
-        });
+        Parse.Cloud.run('wipeDB');
         console.log("Done");
     }
 

@@ -63,19 +63,13 @@ class Election extends React.Component {
     }
 
     deleteCandidate(id) {
+        Parse.Cloud.run('deleteCandidate', {elId: this.state.id, cId: id});
         const list = [];
         this.state.cList.forEach( (e) => {
             if(e.id !== id)
                 list.push(e);
         });
         // delete from database before we update the list in state
-        const Cand = Parse.Object.extend('Candidate');
-        const query = new Parse.Query(Cand);
-        query.get(id).then( (e) => {
-            e.destroy();
-        }, (error) => {
-            console.log(error);
-        });
         this.setState( {cList: list} );
     }
 

@@ -1,5 +1,6 @@
 {
   "appId": "WebVote",
+  "restAPIKey": "WebVoteRestKey",
   "masterKey": "WebVoteMasterKey",
   "appName": "WebVote",
   "cloud": "./cloud/main",
