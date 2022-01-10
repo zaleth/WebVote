@@ -18,8 +18,6 @@ class ElectionDay extends React.Component {
             newElection: false,
             voters: 0,
         }
-        this.addNewElection = this.addNewElection.bind(this);
-        this.deleteElection = this.deleteElection.bind(this);
         this.stuffBallots = this.stuffBallots.bind(this);
         this.delete = props.delete;
     }
@@ -91,7 +89,7 @@ class ElectionDay extends React.Component {
     }
 
     stuffBallots() {
-        const numVoters = 30;
+        const numVoters = 3;
         const Voter = Parse.Object.extend('Voter');
         const Vote = Parse.Object.extend('Vote');
         const myState = this.state;
@@ -113,10 +111,12 @@ class ElectionDay extends React.Component {
                         for(let c = 0; c < this.min(e.votes, list.length); c++) {
                             //console.log("Voting in " + e.name);
                             const vote = new Vote();
-                            vote.set('elID', e.id);
-                            vote.set('cID', list[c].id);
-                            vote.set('vID', vID);
-                            vote.save().then( (res) => {
+                            const params = {
+                                'elID': e.id,
+                                'cID': list[c].id,
+                                'vID': vID,
+                            };
+                            Parse.Cloud.run("registerVote", params).then( (res) => {
                                 //console.log("Voted for " + list[c].name + " in " + e.name);
                             }, (error) => {
                                 console.log("Error casting vote:" + error);
@@ -139,38 +139,6 @@ class ElectionDay extends React.Component {
         this.setState({ collapsed: val});
     }
 
-    saveElectionDay() {
-        const EDay = Parse.Object.extend('ElectionDay');
-        const query = new Parse.Query(EDay);
-        const edName = this.state.name;
-        const eList = this.state.elections;
-        query.get(this.state.id).then( (ed) => {
-            // update existing entry with new data
-            // edID can't be changed
-            ed.set('edName', edName)
-            // list of elections is not stored in the ElectionDay ...
-            ed.save().then( (r) => {
-                // ... so save them each now
-                eList.forEach( (e) => {
-                    Election.saveElection(e);
-                });
-            }, (error) => {});
-        }, (error) => {
-            // assume not found, create a new entry
-            const ed = new EDay();
-            // edID will be auto-assigned by the DB
-            ed.set('edName', edName)
-            // list of elections is not stored in the ElectionDay ...
-            ed.save().then( (r) => {
-                // ... so save them each now
-                eList.forEach( (e) => {
-                    Election.saveElection(e);
-                });
-            }, (error) => {});
-        });
-
-    }
-
     countVoters() {
         const Voter = Parse.Object.extend('Voter');
         const query = new Parse.Query(Voter);
@@ -180,33 +148,6 @@ class ElectionDay extends React.Component {
         }, (error) => {
             console.log("Error counting voters for " + this.state.id + ": " + error);
         });
-    }
-
-    addNewElection(e) {
-        const list = this.state.elections;
-        list.push(e);
-        this.setState({ 'elections': list, newElection: false });
-    }
-
-    deleteElection(id) {
-        const list = [];
-        this.state.elections.forEach( (e) => {
-            if(e.id !== id)
-                list.push(e);
-        });
-        // delete from database before we update the list in state
-        const Elec = Parse.Object.extend('Election');
-        const query = new Parse.Query(Elec);
-        query.get(id).then( (e) => {
-            e.destroy();
-        }, (error) => {
-            console.log(error);
-        });
-        this.setState( {elections: list} );
-    }
-
-    getElectionList() {
-        return this.state.elections;
     }
 
     render() {

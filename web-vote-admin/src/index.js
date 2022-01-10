@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 
 const Parse = require('parse');
-Parse.initialize("WebVoteAdmin");
+Parse.initialize('WebVote');
 Parse.serverURL = 'http://localhost:1337/parse';
 
 ReactDOM.render(

@@ -95,24 +95,19 @@ class ElectionDay extends React.Component {
 
     addNewElection(e) {
         const list = this.state.elections;
+        console.log(e);
         list.push(e);
         this.setState({ 'elections': list, newElection: false });
     }
 
     deleteElection(id) {
+        Parse.Cloud.run('deleteElection', {edId: this.state.id, elId: id});
         const list = [];
         this.state.elections.forEach( (e) => {
             if(e.id !== id)
                 list.push(e);
         });
         // delete from database before we update the list in state
-        const Elec = Parse.Object.extend('Election');
-        const query = new Parse.Query(Elec);
-        query.get(id).then( (e) => {
-            e.destroy();
-        }, (error) => {
-            console.log(error);
-        });
         this.setState( {elections: list} );
     }
 

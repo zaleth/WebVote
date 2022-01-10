@@ -35,8 +35,11 @@ class VoterPage extends React.Component {
 
         query.find().then( (result) => {
             result.forEach( (e) => {
+                // Add election ID to the list
                 list.push(e.id);
             });
+
+            // Get the name of this election day
             const EDay = Parse.Object.extend('ElectionDay');
             const iQuery = new Parse.Query(EDay);
             iQuery.get(this.state.edID).then( (res) => {

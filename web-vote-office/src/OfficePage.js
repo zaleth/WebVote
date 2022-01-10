@@ -5,7 +5,7 @@ import Parse from './index';
 import ElectionDay from './ElectionDay';
 
 
-class AdminPage extends React.Component {
+class OfficePage extends React.Component {
 
     constructor(props) {
         super(props);
@@ -41,41 +41,18 @@ class AdminPage extends React.Component {
         });
     }
 
-    genVoterID(id) {
-        const Voter = Parse.Object.extend('Voter');
-        const v = new Voter();
-        v.set('edID', id);
-        v.save().then( (res) => {
-            this.setState({voterIDToShow: res.id});
-            console.log("Added voter ID " + res.id + " to election day " + id);
-        }, (error) => {
-            console.log("Error creating new voter: " + error);
-        });
+    async genVoterID(id) {
+        const res = await Parse.Cloud.run('genVoterId', { edId: id });
+            this.setState({voterIDToShow: res});
+            console.log("Added voter ID " + res + " to election day " + id);
     }
 
     clearVoterID() {
         this.setState({voterIDToShow: ""});
     }
 
-    eraseVoters(id) {
-        const Voter = Parse.Object.extend('Voter');
-        const query = new Parse.Query(Voter);
-        query.equalTo('edID', id);
-        query.limit(1000);
-        query.find().then( (res) => {
-            res.forEach( (e) => {
-            const Vote = Parse.Object.extend('Vote');
-            const iQuery = new Parse.Query(Vote);
-            iQuery.equalTo('vID', e.id);
-            iQuery.find().then( (ret) => {
-                ret.forEach( (v) => {
-                v.destroy();
-            });
-            }, (error) => {});
-            console.log("Voter destroyed");
-            e.destroy();
-            });
-        }, (error) => {});
+    async eraseVoters(id) {
+        await Parse.Cloud.run('eraseVoters', {edId: id});
     }
 
     logout() {
@@ -91,6 +68,7 @@ class AdminPage extends React.Component {
         return(
             <div className="office">
                 <p>Election days</p>
+                <p>Logged in as {Parse.User.current().getUsername()}</p>
                 <div className="list">
                     <ul>
                         {eDayList.map( (e) =>
@@ -112,4 +90,4 @@ class AdminPage extends React.Component {
     }
 }
 
-export default AdminPage;
+export default OfficePage;

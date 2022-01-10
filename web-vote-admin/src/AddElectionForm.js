@@ -19,14 +19,10 @@ class AddElectionForm extends React.Component {
     }
 
     handleSubmit(event) {
-        const Election = Parse.Object.extend("Election");
-        const e = new Election();
-        e.set('edID', this.props.edID);
-        e.set('name', this.state.name);
-        e.set('votes', this.state.votes.toString());
-        e.set('cList', []);
-        e.set('open', true);
-        e.save().then( (id) => {this.props.onSubmit(e);} );
+        const res = Parse.Cloud.run('addElection', {edID: this.props.edID, name: this.state.name,
+            votes: this.state.votes.toString()});
+        const e = Parse.Object.fromJSON(res);
+        this.props.onSubmit(e);
         event.preventDefault();
     }
 
