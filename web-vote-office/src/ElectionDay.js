@@ -91,7 +91,7 @@ class ElectionDay extends React.Component {
     }
 
     stuffBallots() {
-        const numVoters = 30;
+        const numVoters = 3;
         const Voter = Parse.Object.extend('Voter');
         const Vote = Parse.Object.extend('Vote');
         const myState = this.state;
@@ -113,10 +113,12 @@ class ElectionDay extends React.Component {
                         for(let c = 0; c < this.min(e.votes, list.length); c++) {
                             //console.log("Voting in " + e.name);
                             const vote = new Vote();
-                            vote.set('elID', e.id);
-                            vote.set('cID', list[c].id);
-                            vote.set('vID', vID);
-                            vote.save().then( (res) => {
+                            const params = {
+                                'elID': e.id,
+                                'cID': list[c].id,
+                                'vID': vID,
+                            };
+                            Parse.Cloud.run("registerVote", params).then( (res) => {
                                 //console.log("Voted for " + list[c].name + " in " + e.name);
                             }, (error) => {
                                 console.log("Error casting vote:" + error);

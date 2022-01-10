@@ -191,7 +191,69 @@ Parse.Cloud.define('deleteCandidate', async (request) => {
         },
 
     }
-})
+});
+
+Parse.Cloud.define('getAllUsers', async (request) => {
+    const query = new Parse.Query(Parse.User);
+    const res = await query.find(null, {useMasterKey: true});
+    return res;
+});
+
+Parse.Cloud.define('addUser', async (request) => {
+    const admin = request.user;
+    //console.log(admin);
+    //console.log(admin.id);
+    const user = new Parse.User();
+    user.setUsername(request.params.name);
+    user.setPassword(request.params.pass);
+    const res = await user.signUp(request.params.name, request.params.pass, null, {useMasterKey: true});
+    //console.log(Parse.User.current().id);
+    await Parse.User.logIn(request.params.name, request.params.pass);
+    const u = await Parse.User.current();
+    console.log(u);
+    let acl = user.getACL();
+    if(!acl) acl = new Parse.ACL(user);
+    acl.setPublicReadAccess(true);
+    acl.setReadAccess(admin.id, true);
+    acl.setWriteAccess(admin.id, true);
+    user.setACL(acl, null, {useMasterKey: true});
+    await user.save(null, {useMasterKey: true});
+    Parse.User.logOut();
+    return res;
+},{
+    fields: ['name', 'pass']
+});
+
+Parse.Cloud.define('changeUserPassword', async (request) => {
+    const query = new Parse.Query(Parse.User);
+    const res = await query.get(request.params.id);
+    res.setPassword(request.params.newPass, {useMasterKey: true});
+    const ret = await res.save(null, {useMasterKey: true});
+    return ret;
+},{
+    fields: ['id', 'newPass']
+});
+
+Parse.Cloud.define('deleteUser', async (request) => {
+    const query = new Parse.Query(Parse.User);
+    const res = await query.get(request.params.id);
+    await res.destroy({useMasterKey: true});
+    return "Done";
+},{
+    fields: ['id']
+});
+
+Parse.Cloud.define('genVoterId', async (request) => {
+    const Voter = Parse.Object.extend('Voter');
+    const v = new Voter();
+    v.set('edID', request.params.edId);
+    const res = await v.save();
+    return res.id;
+
+},{
+    fields: ['edId']
+});
+
 Parse.Cloud.define('registerVote', async (request) => {
     const Vote = Parse.Object.extend('Vote');
     const vote = new Vote();

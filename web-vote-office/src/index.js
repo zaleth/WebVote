@@ -4,8 +4,8 @@ import './index.css';
 import App from './App';
 
 const Parse = require('parse');
-Parse.initialize("WebVoteOffice");
-Parse.serverURL = 'http://localhost:1338/office';
+Parse.initialize("WebVote", "WebVoteKey", "WebVoteMasterKey");
+Parse.serverURL = 'http://localhost:1337/parse';
 
 ReactDOM.render(
   <React.StrictMode>

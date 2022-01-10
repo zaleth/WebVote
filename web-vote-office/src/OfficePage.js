@@ -5,7 +5,7 @@ import Parse from './index';
 import ElectionDay from './ElectionDay';
 
 
-class AdminPage extends React.Component {
+class OfficePage extends React.Component {
 
     constructor(props) {
         super(props);
@@ -41,16 +41,10 @@ class AdminPage extends React.Component {
         });
     }
 
-    genVoterID(id) {
-        const Voter = Parse.Object.extend('Voter');
-        const v = new Voter();
-        v.set('edID', id);
-        v.save().then( (res) => {
-            this.setState({voterIDToShow: res.id});
-            console.log("Added voter ID " + res.id + " to election day " + id);
-        }, (error) => {
-            console.log("Error creating new voter: " + error);
-        });
+    async genVoterID(id) {
+        const res = await Parse.Cloud.run('genVoterId', { edId: id });
+            this.setState({voterIDToShow: res});
+            console.log("Added voter ID " + res + " to election day " + id);
     }
 
     clearVoterID() {
@@ -91,6 +85,7 @@ class AdminPage extends React.Component {
         return(
             <div className="office">
                 <p>Election days</p>
+                <p>Logged in as {Parse.User.current().getUsername()}</p>
                 <div className="list">
                     <ul>
                         {eDayList.map( (e) =>
@@ -112,4 +107,4 @@ class AdminPage extends React.Component {
     }
 }
 
-export default AdminPage;
+export default OfficePage;

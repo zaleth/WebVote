@@ -5,8 +5,8 @@ import App from './App';
 
 
 const Parse = require('parse');
-Parse.initialize("WebVoteVoter");
-Parse.serverURL = 'http://localhost:1339/voter';
+Parse.initialize("WebVote");
+Parse.serverURL = 'http://localhost:1337/parse';
 
 ReactDOM.render(
   <React.StrictMode>
