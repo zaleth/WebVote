@@ -18,8 +18,6 @@ class ElectionDay extends React.Component {
             newElection: false,
             voters: 0,
         }
-        this.addNewElection = this.addNewElection.bind(this);
-        this.deleteElection = this.deleteElection.bind(this);
         this.stuffBallots = this.stuffBallots.bind(this);
         this.delete = props.delete;
     }
@@ -141,38 +139,6 @@ class ElectionDay extends React.Component {
         this.setState({ collapsed: val});
     }
 
-    saveElectionDay() {
-        const EDay = Parse.Object.extend('ElectionDay');
-        const query = new Parse.Query(EDay);
-        const edName = this.state.name;
-        const eList = this.state.elections;
-        query.get(this.state.id).then( (ed) => {
-            // update existing entry with new data
-            // edID can't be changed
-            ed.set('edName', edName)
-            // list of elections is not stored in the ElectionDay ...
-            ed.save().then( (r) => {
-                // ... so save them each now
-                eList.forEach( (e) => {
-                    Election.saveElection(e);
-                });
-            }, (error) => {});
-        }, (error) => {
-            // assume not found, create a new entry
-            const ed = new EDay();
-            // edID will be auto-assigned by the DB
-            ed.set('edName', edName)
-            // list of elections is not stored in the ElectionDay ...
-            ed.save().then( (r) => {
-                // ... so save them each now
-                eList.forEach( (e) => {
-                    Election.saveElection(e);
-                });
-            }, (error) => {});
-        });
-
-    }
-
     countVoters() {
         const Voter = Parse.Object.extend('Voter');
         const query = new Parse.Query(Voter);
@@ -182,33 +148,6 @@ class ElectionDay extends React.Component {
         }, (error) => {
             console.log("Error counting voters for " + this.state.id + ": " + error);
         });
-    }
-
-    addNewElection(e) {
-        const list = this.state.elections;
-        list.push(e);
-        this.setState({ 'elections': list, newElection: false });
-    }
-
-    deleteElection(id) {
-        const list = [];
-        this.state.elections.forEach( (e) => {
-            if(e.id !== id)
-                list.push(e);
-        });
-        // delete from database before we update the list in state
-        const Elec = Parse.Object.extend('Election');
-        const query = new Parse.Query(Elec);
-        query.get(id).then( (e) => {
-            e.destroy();
-        }, (error) => {
-            console.log(error);
-        });
-        this.setState( {elections: list} );
-    }
-
-    getElectionList() {
-        return this.state.elections;
     }
 
     render() {

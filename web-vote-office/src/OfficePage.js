@@ -51,25 +51,8 @@ class OfficePage extends React.Component {
         this.setState({voterIDToShow: ""});
     }
 
-    eraseVoters(id) {
-        const Voter = Parse.Object.extend('Voter');
-        const query = new Parse.Query(Voter);
-        query.equalTo('edID', id);
-        query.limit(1000);
-        query.find().then( (res) => {
-            res.forEach( (e) => {
-            const Vote = Parse.Object.extend('Vote');
-            const iQuery = new Parse.Query(Vote);
-            iQuery.equalTo('vID', e.id);
-            iQuery.find().then( (ret) => {
-                ret.forEach( (v) => {
-                v.destroy();
-            });
-            }, (error) => {});
-            console.log("Voter destroyed");
-            e.destroy();
-            });
-        }, (error) => {});
+    async eraseVoters(id) {
+        await Parse.Cloud.run('eraseVoters', {edId: id});
     }
 
     logout() {

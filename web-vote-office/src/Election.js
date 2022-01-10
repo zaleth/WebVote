@@ -153,71 +153,27 @@ class Election extends React.Component {
         this.setState({ collapsed: val});
     }
 
-    toggleOpen() {
-        if(this.state.open) {
-            this.setState( { open: false} );
-            // publish state to the database
-            const Elec = Parse.Object.extend('Election');
-            const query = new Parse.Query(Elec);
-            query.get(this.state.id).then( (e) => {
-                e.set('open', false);
-                e.save().then( (e) => {
-                    console.log("Election saved successfully");
-                }, (error) => {
-                    console.log("Error saving election: " + error);
-                });
-            }, (error) => {
-                console.log("Error fetching election: " + error);
-            });
-        } else {
-            this.setState( { open: true} );
-            // publish state to the database
-            const Elec = Parse.Object.extend('Election');
-            const query = new Parse.Query(Elec);
-            query.get(this.state.id).then( (e) => {
-                e.set('open', true);
-                e.save().then( (e) => {
-                    console.log("Election saved successfully");
-                }, (error) => {
-                    console.log("Error saving election: " + error);
-                });
-            }, (error) => {
-                console.log("Error fetching election: " + error);
-            });
-        }
+    async toggleOpen() {
+        const isOpen = await Parse.Cloud.run('openElection', {elID: this.state.id, isOpen: !this.state.open});
+        this.setState( {open: isOpen});
     }
 
-    deleteCandidate(id) {
+    async deleteCandidate(id) {
+        // delete from database before we update the list in state
+        await Parse.Cloud.run('deleteCandidate', {elId: this.state.id, cId: id});
         const list = [];
         this.state.cList.forEach( (e) => {
             if(e.id !== id)
                 list.push(e);
         });
-        // delete from database before we update the list in state
-        const Cand = Parse.Object.extend('Candidate');
-        const query = new Parse.Query(Cand);
-        query.get(id).then( (e) => {
-            e.destroy();
-        }, (error) => {
-            console.log(error);
-        });   
         this.setState( {cList: list} );
     }
 
-    resetVotes() {
+    async resetVotes() {
         if(this.state.open)
             return;
 
-        const Vote = Parse.Object.extend('Vote');
-        const query = new Parse.Query(Vote);
-        query.equalTo('elID', this.state.id);
-        query.find().then( (res) => {
-            res.forEach( (e) => {
-                e.destroy();
-            });
-        }, (error) => {
-            console.log("Error clearing votes: " + error);
-        });
+        await Parse.Cloud.run('resetVotes', {elID: this.state.id});
         this.setState({ castVotes: [], sumVotes: 0});
     }
 

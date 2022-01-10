@@ -4,6 +4,8 @@ Parse.Cloud.define('hello', async (request) => {
     return "world";
 });
 
+// --- BEGIN ADMIN FUNCTIONS ---
+
 Parse.Cloud.define('addElectionDay', async (request) => {
     const EDay = Parse.Object.extend('ElectionDay');
     const ed = new EDay();
@@ -243,6 +245,10 @@ Parse.Cloud.define('deleteUser', async (request) => {
     fields: ['id']
 });
 
+// --- END ADMIN FUNCTIONS ---
+
+// --- BEGIN OFFICE FUNCTIONS ---
+
 Parse.Cloud.define('genVoterId', async (request) => {
     const Voter = Parse.Object.extend('Voter');
     const v = new Voter();
@@ -254,18 +260,113 @@ Parse.Cloud.define('genVoterId', async (request) => {
     fields: ['edId']
 });
 
+Parse.Cloud.define('eraseVoters', async (request) => {
+    const Voter = Parse.Object.extend('Voter');
+    const query = new Parse.Query(Voter);
+    query.equalTo('edID', request.params.edId);
+    query.limit(1000);
+    query.find().then( (res) => {
+        res.forEach( (e) => {
+            const Vote = Parse.Object.extend('Vote');
+            const iQuery = new Parse.Query(Vote);
+            iQuery.equalTo('vID', e.id);
+            iQuery.find().then( (ret) => {
+                ret.forEach( (v) => {
+                    v.destroy();
+                });
+            }, (error) => {});
+            e.destroy();
+        });
+    }, (error) => {});
+    return "Done";
+},{
+    fields: ['edId']
+});
+
+Parse.Cloud.define('openElection', async (request) => {
+    const Elec = Parse.Object.extend('Election');
+    const query = new Parse.Query(Elec);
+    const e = await query.get(request.params.elID);
+    e.set('open', request.params.isOpen);
+    await e.save();
+    return e.get('open');
+},{
+    fields: ['elID', 'isOpen']
+});
+
+Parse.Cloud.define('resetVotes', async (request) => {
+    const Elec = Parse.Object.extend('Election');
+    let query = new Parse.Query(Elec);
+    let ret = await query.get(request.params.elID);
+    if(e.get('open')) {
+        console.log("Election", e.id, "is open");
+        return "Failed";
+    }
+
+    const Vote = Parse.Object.extend('Vote');
+    query = new Parse.Query(Vote);
+    query.equalTo('elID', this.state.id);
+    query.find().then( (res) => {
+        res.forEach( (e) => {
+            e.destroy();
+        });
+    }, (error) => {
+        console.log("Error clearing votes: " + error);
+    });
+    return "Done";
+},{
+    fields: ['elID']
+});
+
+// --- END OFFICE FUNCTIONS ---
+
+// --- BEGIN VOTER FUNCTIONS ---
+
 Parse.Cloud.define('registerVote', async (request) => {
+    const elID = request.params.elID;
+    const cID = request.params.cID;
+    const vID = request.params.vID;
+
+    // check that the election is open
+    const Elec = Parse.Object.extend('Election');
+    let query = new Parse.Query(Elec);
+    let ret = await query.get(elID);
+    const edID = ret.get('edID');
+    if(! ret.get('open')) {
+        console.log("Election", elID, "is closed");
+        return "Failed";
+    }
+
+    // check that voter can vote in this election
+    const Voter = Parse.Object.extend('Voter');
+    query = new Parse.Query(Voter);
+    ret = await query.get(vID);
+    if(ret.get('edID') !== edID) {
+        console.log(vID, "is not registered for", elID, "on", edID);
+        return "Failed";
+    }
+
+    // check that candidate is in this election
+    const Cand = Parse.Object.extend('Candidate');
+    query = new Parse.Query(Cand);
+    ret = await query.get(cID);
+    if(ret.get('elID') !== elID) {
+        console.log(cID, "is not running in", elID);
+        return "Failed";
+    }
+
+    // cast vote
     const Vote = Parse.Object.extend('Vote');
     const vote = new Vote();
-    vote.set('elID', request.params.elID);
-    vote.set('cID', request.params.cID);
-    vote.set('vID', request.params.vID);
+    vote.set('elID', elID);
+    vote.set('cID', cID);
+    vote.set('vID', vID);
     /*vote.save().then( (ret) => {
         return ret;
     }, (error) => {
         return error;
     });*/
-    const ret = await vote.save();
+    ret = await vote.save();
     return ret;
 },{
     fields: {
@@ -283,3 +384,5 @@ Parse.Cloud.define('registerVote', async (request) => {
         },
     },
 });
+
+// --- END VOTER FUNCTIONS ---

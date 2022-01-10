@@ -60,17 +60,8 @@ class Election extends React.Component {
 
     }
 
-    registerVote(elID, cID, vID) {
-        const Vote = Parse.Object.extend('Vote');
-        const vote = new Vote();
-        vote.set('elID', elID);
-        vote.set('cID', cID);
-        vote.set('vID', vID);
-        vote.save().then( (res) => {
-
-        }, (error) => {
-
-        });
+    async registerVote(elID, cID, vID) {
+        await Parse.Cloud.run('registerVote', {elID: elID, cID: cID, vID: vID});
     }
 
     handleSubmit(event) {
@@ -158,6 +149,7 @@ class Election extends React.Component {
         iQuery.equalTo('elID', this.state.id);
         iQuery.equalTo('vID', this.state.voteID);
         iQuery.find().then( (res) => {
+            //console.log(res);
             if(this.state.votes > 1) {
                 const list = [];
                 res.forEach( (e) => {
@@ -165,7 +157,7 @@ class Election extends React.Component {
                 });
                 this.setState( {chosenCandidates: list} );
             } else {
-                this.setState( {currentCandidate: res.get('cID') } );
+                this.setState( {currentCandidate: res.length === 1 ? res.get('cID') : "" } );
             }
         }, (error) => {
             console.log("Error getting vote info: " + error);
