@@ -81,14 +81,18 @@ class AdminPage extends React.Component {
         this.loadAllUsers();
     }
 
-    addElection(event) {
-        const e = Parse.Cloud.run('addElectionDay', { name: this.eDayInfo.name, date: this.eDayInfo.date});
-        const list = this.state.eDayIds;
-        list.push(e.get('objectId'));
-        this.setState( {eDayIds: list} );
-        console.log("Saved new election " + e.get('objectId') + ": " + e.get('edName') + "@" + e.get('edDate'));
-        this.setState( {showAddElectionForm: false} );
+    async addElection(event) {
         event.preventDefault();
+        const e = await Parse.Cloud.run('addElectionDay', { name: this.eDayInfo.name, 
+            date: new Date(this.eDayInfo.date)});
+        const list = this.state.eDayIds;
+        try {
+            list.push(e.id);
+            console.log("Saved new election " + e.id + ": " + e.get('edName') + "@" + e.get('edDate'));
+            this.setState( {eDayIds: list, showAddElectionForm: false} );
+        } catch(error) {
+            console.log(error);
+        }
     }
 
     updateEDay(field, value) {
