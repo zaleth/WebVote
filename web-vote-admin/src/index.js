@@ -5,8 +5,10 @@ import App from './App';
 import settings from './settings';
 
 const Parse = require('parse');
+
 Parse.initialize(settings.APP_ID, settings.JS_KEY);
 Parse.serverURL = settings.PARSE_URL;
+
 
 ReactDOM.render(
   <React.StrictMode>
