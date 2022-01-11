@@ -1,2 +1,4 @@
 parse-server/node_modules/
 parse-server/logs/
+node_modules/
+settings.js
