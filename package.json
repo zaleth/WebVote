@@ -1,0 +1,14 @@
+{
+    "name": "webvote",
+    "description": "WebVote master control",
+    "scripts": {
+        "parse": "cd parse-server/ && node index.js",
+        "admin": "copyfiles --flat settings.js web-vote-admin/src && cd web-vote-admin && npm run start",
+        "office": "copyfiles --flat settings.js web-vote-office/src && cd web-vote-office && npm run start",
+        "voter": "copyfiles --flat settings.js web-vote-voter/src && cd web-vote-voter && npm run start",
+        "build": "copyfiles --flat settings.js web-vote-voter/src && cd web-vote-voter && npm run build"
+    },
+    "dependencies": {
+        "copyfiles": "^2.4.1"
+    }
+}

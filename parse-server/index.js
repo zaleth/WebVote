@@ -1,20 +1,23 @@
 
+import '../settings';
+
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 
 var app = express();
-var admin = new ParseServer({
-  databaseURI: 'mongodb://127.0.0.1:27017/parse',
-  cloud: './cloud/main.js',
-  appId: 'WebVote',
 
-  masterKey: 'WebVoteMasterKey'
+var api = new ParseServer({
+  databaseURI: DATABASE_URI,
+  cloud: './cloud/main.js',
+  appId: APP_ID,
+  javascriptKey: JS_KEY,
+  masterKey: MASTER_KEY
+
 });
 
 // Serve the Parse API at /parse URL prefix
-app.use('/parse', admin);
+app.use('/parse', api);
 
-var adminPort = 1337;
-app.listen(adminPort, function() {
-  console.log('parse-server-admin running on port ' + adminPort + '.');
+app.listen(PARSE_PORT, function() {
+  console.log('parse-server running on port ' + PARSE_PORT + '.');
 });
