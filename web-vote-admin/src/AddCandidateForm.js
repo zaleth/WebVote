@@ -18,11 +18,16 @@ class AddCandidateForm extends React.Component {
         //this.props.onUpdate(event.target.name, event.target.value);
     }
 
-    handleSubmit(event) {
-        const res = Parse.Cloud.run('addCandidate', {elID: this.props.elID, name: this.state.name});
-        const e = Parse.Object.fromJSON(res);
-        this.props.onSubmit(e);
+    async handleSubmit(event) {
         event.preventDefault();
+        await Parse.Cloud.run('addCandidate', {elId: this.props.elID, name: this.state.name});
+        const Cand = Parse.Object.extend('Candidate');
+        const query = new Parse.Query(Cand);
+        query.equalTo('elID', this.props.elID);
+        query.equalTo('name', this.state.name);
+        query.find().then( (res) => {
+            this.props.onSubmit(res[0]);
+        });
     }
 
     render() {

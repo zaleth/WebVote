@@ -44,7 +44,7 @@ class ElectionDay extends React.Component {
                     });
                     this.setState( {
                         name: ed.get('edName'),
-                        date: ed.get('edDate'),
+                        date: new Date(ed.get('edDate')).toDateString(),
                         elections: list,
                     });
                     console.log("state set for '" + this.state.name + "'");
@@ -95,7 +95,6 @@ class ElectionDay extends React.Component {
 
     addNewElection(e) {
         const list = this.state.elections;
-        console.log(e);
         list.push(e);
         this.setState({ 'elections': list, newElection: false });
     }
@@ -117,7 +116,7 @@ class ElectionDay extends React.Component {
 
     render() {
         const myState = this.state;
-        console.log(this.state.id, this.state.name);
+        console.log(this.state.id, this.state.name, typeof this.state.date);
         return(
                 <div>{myState.name} ({myState.date}) {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>

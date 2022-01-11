@@ -16,8 +16,16 @@ class OfficePage extends React.Component {
         this.props = props;
         this.doLogout = props.logout;
         this.logout = this.logout.bind(this);
-        this.genVoterID = this.genVoterID.bind(this);
+        this.setVoterID = this.setVoterID.bind(this);
         this.clearVoterID = this.clearVoterID.bind(this);
+    }
+
+    setVoterID(id) {
+        this.setState({voterIDToShow: id});
+    }
+
+    clearVoterID() {
+        this.setState({voterIDToShow: ""});
     }
 
     componentDidMount() {
@@ -41,20 +49,6 @@ class OfficePage extends React.Component {
         });
     }
 
-    async genVoterID(id) {
-        const res = await Parse.Cloud.run('genVoterId', { edId: id });
-            this.setState({voterIDToShow: res});
-            console.log("Added voter ID " + res + " to election day " + id);
-    }
-
-    clearVoterID() {
-        this.setState({voterIDToShow: ""});
-    }
-
-    async eraseVoters(id) {
-        await Parse.Cloud.run('eraseVoters', {edId: id});
-    }
-
     logout() {
         this.doLogout();
         this.props.history.push('/')
@@ -67,14 +61,12 @@ class OfficePage extends React.Component {
 
         return(
             <div className="office">
-                <p>Election days</p>
                 <p>Logged in as {Parse.User.current().getUsername()}</p>
+                <p>Election days</p>
                 <div className="list">
                     <ul>
                         {eDayList.map( (e) =>
-                        <li key={e}><ElectionDay id={e}/>
-                        <button onClick={() => this.genVoterID(e)}>Add new voter</button>
-                        <button onClick={() => this.eraseVoters(e)}>Erase all voters</button>
+                        <li key={e}><ElectionDay id={e} showID={this.setVoterID}/>
                         </li> )}
                     </ul>
                 </div>
