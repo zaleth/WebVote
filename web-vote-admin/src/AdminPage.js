@@ -111,12 +111,6 @@ class AdminPage extends React.Component {
         this.setState( {eDayIds: list} );
     }
 
-    wipeDB() {
-        console.log("Clering database");
-        Parse.Cloud.run('wipeDB');
-        console.log("Done");
-    }
-
     logout() {
         this.doLogout();
         this.props.history.push('/')
@@ -148,9 +142,6 @@ class AdminPage extends React.Component {
                         { this.setState({showAddElectionForm: true})}}>Add election day</button>}
                 </div>
                 <button name="logout" onClick={this.logout}>Log out</button>
-                <div className="debug">
-                    <button name="wipeDB" onClick={this.wipeDB}>Wipe the database</button>
-                </div>
                 <div>
                     <p>User administration</p>
                     <ul>

@@ -44,50 +44,6 @@ Parse.Cloud.define('deleteElectionDay', (request) => {
     }
 });
 
-Parse.Cloud.define('wipeDB', (request) => {
-    const EDay = Parse.Object.extend('ElectionDay');
-    let query = new Parse.Query(EDay);
-    query.find().then( (res) => {
-        res.forEach( (e) => { e.destroy(); });
-    }, (error) => {
-        console.log(error);
-    });
-
-    const Elec = Parse.Object.extend('Election');
-    query = new Parse.Query(Elec);
-    query.find().then( (res) => {
-        res.forEach( (e) => { e.destroy(); });
-    }, (error) => {
-        console.log(error);
-    });
-
-    const Cand = Parse.Object.extend('Candidate');
-    query = new Parse.Query(Cand);
-    query.find().then( (res) => {
-        res.forEach( (e) => { e.destroy(); });
-    }, (error) => {
-        console.log(error);
-    });
-
-    const Vote = Parse.Object.extend('Vote');
-    query = new Parse.Query(Vote);
-    query.find().then( (res) => {
-        res.forEach( (e) => { e.destroy(); });
-    }, (error) => {
-        console.log(error);
-    });
-
-    const Voter = Parse.Object.extend('Voter');
-    query = new Parse.Query(Voter);
-    query.find().then( (res) => {
-        res.forEach( (e) => { e.destroy(); });
-    }, (error) => {
-        console.log(error);
-    });
-
-    return "Done";
-});
-
 Parse.Cloud.define('addElection', (request) => {
     const Election = Parse.Object.extend('Election');
     const e = new Election();
