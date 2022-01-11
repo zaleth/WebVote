@@ -81,14 +81,18 @@ class AdminPage extends React.Component {
         this.loadAllUsers();
     }
 
-    addElection(event) {
-        const e = Parse.Cloud.run('addElectionDay', { name: this.eDayInfo.name, date: this.eDayInfo.date});
-        const list = this.state.eDayIds;
-        list.push(e.get('objectId'));
-        this.setState( {eDayIds: list} );
-        console.log("Saved new election " + e.get('objectId') + ": " + e.get('edName') + "@" + e.get('edDate'));
-        this.setState( {showAddElectionForm: false} );
+    async addElection(event) {
         event.preventDefault();
+        const e = await Parse.Cloud.run('addElectionDay', { name: this.eDayInfo.name, 
+            date: new Date(this.eDayInfo.date)});
+        const list = this.state.eDayIds;
+        try {
+            list.push(e.id);
+            console.log("Saved new election " + e.id + ": " + e.get('edName') + "@" + e.get('edDate'));
+            this.setState( {eDayIds: list, showAddElectionForm: false} );
+        } catch(error) {
+            console.log(error);
+        }
     }
 
     updateEDay(field, value) {
@@ -109,12 +113,6 @@ class AdminPage extends React.Component {
                 list.push(e);
         });
         this.setState( {eDayIds: list} );
-    }
-
-    wipeDB() {
-        console.log("Clering database");
-        Parse.Cloud.run('wipeDB');
-        console.log("Done");
     }
 
     logout() {
@@ -148,9 +146,6 @@ class AdminPage extends React.Component {
                         { this.setState({showAddElectionForm: true})}}>Add election day</button>}
                 </div>
                 <button name="logout" onClick={this.logout}>Log out</button>
-                <div className="debug">
-                    <button name="wipeDB" onClick={this.wipeDB}>Wipe the database</button>
-                </div>
                 <div>
                     <p>User administration</p>
                     <ul>

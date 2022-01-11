@@ -19,6 +19,9 @@ class ElectionDay extends React.Component {
             voters: 0,
         }
         this.stuffBallots = this.stuffBallots.bind(this);
+        this.genVoterID = this.genVoterID.bind(this);
+        this.eraseVoters = this.eraseVoters.bind(this);
+        this.setVoterID = props.showID;
         this.delete = props.delete;
     }
 
@@ -27,6 +30,7 @@ class ElectionDay extends React.Component {
             const EDay = Parse.Object.extend('ElectionDay');
             const query = new Parse.Query(EDay);
             query.get(this.state.id).then( (ed) => {
+                ed.set('edDate', new Date(ed.get('edDate')).toDateString());
                 console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
                 const id = ed.id;
                 const list = [];
@@ -91,7 +95,6 @@ class ElectionDay extends React.Component {
     stuffBallots() {
         const numVoters = 3;
         const Voter = Parse.Object.extend('Voter');
-        const Vote = Parse.Object.extend('Vote');
         const myState = this.state;
 
         for(var i = 0; i < numVoters; i++) {
@@ -110,7 +113,6 @@ class ElectionDay extends React.Component {
                         this.shuffle(list);
                         for(let c = 0; c < this.min(e.votes, list.length); c++) {
                             //console.log("Voting in " + e.name);
-                            const vote = new Vote();
                             const params = {
                                 'elID': e.id,
                                 'cID': list[c].id,
@@ -150,6 +152,16 @@ class ElectionDay extends React.Component {
         });
     }
 
+    async genVoterID() {
+        const res = await Parse.Cloud.run('genVoterId', { edId: this.state.id });
+            this.setVoterID(res);
+            console.log("Added voter ID " + res + " to election day " + this.state.id);
+    }
+
+    async eraseVoters() {
+        await Parse.Cloud.run('eraseVoters', {elID: this.state.id});
+    }
+
     render() {
         const myState = this.state;
         console.log(this.state.id, this.state.name);
@@ -159,6 +171,8 @@ class ElectionDay extends React.Component {
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button>}
                     <button name="stuff" onClick={this.stuffBallots}>Stuff ballots</button>
+                    <button onClick={this.genVoterID}>Add new voter</button>
+                        <button onClick={this.eraseVoters}>Erase all voters</button>
                 
                 <div>
                     {((!myState.collapsed) && (myState.elections.length > 0)) ?

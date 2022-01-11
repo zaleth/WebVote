@@ -12,7 +12,7 @@ class LoginPage extends React.Component {
         this.doLogout = this.doLogout.bind(this);
     }
 
-    doLogin = async () => {
+    async doLogin() {
         const user = await Parse.User.logIn('ettQ', 'password');
         if(user.authenticated())
             this.setState( {loggedIn: true} );
