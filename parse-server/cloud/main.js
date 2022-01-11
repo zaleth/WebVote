@@ -1,9 +1,5 @@
 // Cloud Code entry point
 
-Parse.Cloud.define('hello', async (request) => {
-    return "world";
-});
-
 // --- BEGIN ADMIN FUNCTIONS ---
 
 Parse.Cloud.define('addElectionDay', async (request) => {
@@ -12,7 +8,7 @@ Parse.Cloud.define('addElectionDay', async (request) => {
     console.log("Saving " + request.params.name + "@" + request.params.date);
     ed.set('edName', request.params.name);
     ed.set('edDate', request.params.date);
-    const res = await ed.save();
+    const res = await ed.save({useMasterKey: true});
     return res;
 },{
     fields: {
@@ -31,7 +27,7 @@ Parse.Cloud.define('deleteElectionDay', (request) => {
     const EDay = Parse.Object.extend('ElectionDay');
     const query = new Parse.Query(EDay);
     query.get(request.params.id).then( (e) => {
-        e.destroy();
+        e.destroy({useMasterKey: true});
     }, (error) => {
         console.log(error);
     });
@@ -52,7 +48,7 @@ Parse.Cloud.define('addElection', (request) => {
     e.set('votes', request.params.votes);
     e.set('cList', []);
     e.set('open', true);
-    e.save().then( (id) => {
+    e.save({useMasterKey: true}).then( (id) => {
         return e.toJSON();
     }, (error) => {
         console.log(error);
@@ -79,7 +75,7 @@ Parse.Cloud.define('deleteElection', (request) => {
     const query = new Parse.Query(Elec);
     query.get(request.params.elId).then( (e) => {
         if(e.get('edID') === request.params.edId) {
-            e.destroy();
+            e.destroy({useMasterKey: true});
             return "Done";
         } else {
             return "Election belongs to another election day";
@@ -107,7 +103,7 @@ Parse.Cloud.define('addCandidate', async (request) => {
     const e = new Cand();
     e.set('elID', request.params.elID);
     e.set('name', request.params.name);
-    await e.save();
+    await e.save({useMasterKey: true});
     return e.toJSON();
 
 },{
@@ -128,7 +124,7 @@ Parse.Cloud.define('deleteCandidate', async (request) => {
     const query = new Parse.Query(Cand);
     query.get(request.params.cId).then( (e) => {
         if(e.get('elID') === request.params.elId) {
-            e.destroy();
+            e.destroy({useMasterKey: true});
             return "Done";
         } else {
             return "Candidate does not belong to this election";
@@ -209,7 +205,7 @@ Parse.Cloud.define('genVoterId', async (request) => {
     const Voter = Parse.Object.extend('Voter');
     const v = new Voter();
     v.set('edID', request.params.edId);
-    const res = await v.save();
+    const res = await v.save({useMasterKey: true});
     return res.id;
 
 },{
@@ -228,10 +224,10 @@ Parse.Cloud.define('eraseVoters', async (request) => {
             iQuery.equalTo('vID', e.id);
             iQuery.find().then( (ret) => {
                 ret.forEach( (v) => {
-                    v.destroy();
+                    v.destroy({useMasterKey: true});
                 });
             }, (error) => {});
-            e.destroy();
+            e.destroy({useMasterKey: true});
         });
     }, (error) => {});
     return "Done";
@@ -244,7 +240,7 @@ Parse.Cloud.define('openElection', async (request) => {
     const query = new Parse.Query(Elec);
     const e = await query.get(request.params.elID);
     e.set('open', request.params.isOpen);
-    await e.save();
+    await e.save({useMasterKey: true});
     return e.get('open');
 },{
     fields: ['elID', 'isOpen']
@@ -254,8 +250,8 @@ Parse.Cloud.define('resetVotes', async (request) => {
     const Elec = Parse.Object.extend('Election');
     let query = new Parse.Query(Elec);
     let ret = await query.get(request.params.elID);
-    if(e.get('open')) {
-        console.log("Election", e.id, "is open");
+    if(ret.get('open')) {
+        console.log("Election", ret.id, "is open");
         return "Failed";
     }
 
@@ -264,7 +260,7 @@ Parse.Cloud.define('resetVotes', async (request) => {
     query.equalTo('elID', this.state.id);
     query.find().then( (res) => {
         res.forEach( (e) => {
-            e.destroy();
+            e.destroy({useMasterKey: true});
         });
     }, (error) => {
         console.log("Error clearing votes: " + error);
@@ -322,7 +318,7 @@ Parse.Cloud.define('registerVote', async (request) => {
     }, (error) => {
         return error;
     });*/
-    ret = await vote.save();
+    ret = await vote.save({useMasterKey: true});
     return ret;
 },{
     fields: {
