@@ -16,3 +16,5 @@ It is intended that the Admin and Office parts be restricted, for example hosted
 
 # Quick installation
 Currently the code is setup to run on localhost, using ports 3000-3002 for the webapp and 1337 for the Parse backend. Frontend ports are set in the .env file for each page. I've tried deploying to Back4App, and it works well enough. Just remember that the initial user must be added to the database manually: choose any username and password you want and then update web-vote-admin/src/LoginPage.js accordingly. Once that is done you will need to play around a bit with database permissions, since the B4A ppl are smart enough to default to locked-down settings.
+
+You need to insert values in settings_template.js and rename it to settings.js

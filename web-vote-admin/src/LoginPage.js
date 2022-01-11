@@ -7,13 +7,14 @@ class LoginPage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { loggedIn: false };
+        this.state = { user: props.user, pass: props.pass, loggedIn: false };
         this.doLogin = this.doLogin.bind(this);
         this.doLogout = this.doLogout.bind(this);
     }
 
     async doLogin() {
-        const user = await Parse.User.logIn('ettQ', 'password');
+        console.log(this.state.user, this.state.pass);
+        const user = await Parse.User.logIn(this.state.user, this.state.pass);
         if(user.authenticated())
             this.setState( {loggedIn: true} );
     }

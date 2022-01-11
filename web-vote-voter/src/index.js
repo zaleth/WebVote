@@ -2,11 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-
+import settings from './settings';
 
 const Parse = require('parse');
-Parse.initialize('VavejCBuFbWSwByr9TY4PpKjheKBbH2EEMxaT9sQ', '4lY78FyWcoy9ctT6JCWqakt9BtXxQAzGO2zqJz23');
-Parse.serverURL = 'https://parseapi.back4app.com/';
+Parse.initialize(settings.APP_ID, settings.JS_KEY);
+Parse.serverURL = settings.PARSE_URL;
 
 ReactDOM.render(
   <React.StrictMode>
