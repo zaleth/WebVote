@@ -14,7 +14,8 @@ Parse.Cloud.define('addElectionDay', async (request) => {
     const res = await ed.save(null, {useMasterKey: true});
     return res;
 },{
-    fields: ['name', 'date']
+    fields: ['name', 'date'],
+    requireUser: true,
 });
 
 Parse.Cloud.define('deleteElectionDay', (request) => {
@@ -31,7 +32,8 @@ Parse.Cloud.define('deleteElectionDay', (request) => {
             required: true,
             type: String
         }
-    }
+    },
+    requireUser: true,
 });
 
 Parse.Cloud.define('addElection', (request) => {
@@ -65,7 +67,8 @@ Parse.Cloud.define('addElection', (request) => {
             required: true,
             type: Number
         }
-    }
+    },
+    requireUser: true
 });
 
 Parse.Cloud.define('deleteElection', (request) => {
@@ -93,7 +96,8 @@ Parse.Cloud.define('deleteElection', (request) => {
             required:true,
             type: String
         }
-    }
+    },
+    requireUser: true
 });
 
 Parse.Cloud.define('addCandidate', async (request) => {
@@ -114,7 +118,8 @@ Parse.Cloud.define('addCandidate', async (request) => {
             required: true,
             type: String
         },
-    }
+    },
+    requireUser: true
 });
 
 Parse.Cloud.define('deleteCandidate', async (request) => {
@@ -142,13 +147,16 @@ Parse.Cloud.define('deleteCandidate', async (request) => {
             type: String
         },
 
-    }
+    },
+    requireUser: true
 });
 
 Parse.Cloud.define('getAllUsers', async (request) => {
     const query = new Parse.Query(Parse.User);
     const res = await query.find(null, {useMasterKey: true});
     return res;
+},{
+    requireUser: true
 });
 
 Parse.Cloud.define('addUser', async (request) => {
@@ -173,7 +181,8 @@ Parse.Cloud.define('addUser', async (request) => {
     Parse.User.logOut();
     return res;
 },{
-    fields: ['name', 'pass']
+    fields: ['name', 'pass'],
+    requireUser: true
 });
 
 Parse.Cloud.define('changeUserPassword', async (request) => {
@@ -183,7 +192,8 @@ Parse.Cloud.define('changeUserPassword', async (request) => {
     const ret = await res.save(null, {useMasterKey: true});
     return ret;
 },{
-    fields: ['id', 'newPass']
+    fields: ['id', 'newPass'],
+    requireUser: true
 });
 
 Parse.Cloud.define('deleteUser', async (request) => {
@@ -192,7 +202,8 @@ Parse.Cloud.define('deleteUser', async (request) => {
     await res.destroy({useMasterKey: true});
     return "Done";
 },{
-    fields: ['id']
+    fields: ['id'],
+    requireUser: true
 });
 
 // --- END ADMIN FUNCTIONS ---
@@ -207,7 +218,8 @@ Parse.Cloud.define('genVoterId', async (request) => {
     return res.id;
 
 },{
-    fields: ['edId']
+    fields: ['edId'],
+    requireUser: true
 });
 
 Parse.Cloud.define('eraseVoters', async (request) => {
@@ -230,7 +242,8 @@ Parse.Cloud.define('eraseVoters', async (request) => {
     }, (error) => {});
     return "Done";
 },{
-    fields: ['edId']
+    fields: ['edId'],
+    requireUser: true
 });
 
 Parse.Cloud.define('openElection', async (request) => {
@@ -241,7 +254,8 @@ Parse.Cloud.define('openElection', async (request) => {
     await e.save({useMasterKey: true});
     return e.get('open');
 },{
-    fields: ['elID', 'isOpen']
+    fields: ['elID', 'isOpen'],
+    requireUser: true
 });
 
 Parse.Cloud.define('resetVotes', async (request) => {
@@ -269,7 +283,8 @@ Parse.Cloud.define('resetVotes', async (request) => {
     });
     return "Done";
 },{
-    fields: ['elID']
+    fields: ['elID'],
+    requireUser: true
 });
 
 // --- END OFFICE FUNCTIONS ---
