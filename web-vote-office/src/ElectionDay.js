@@ -153,7 +153,7 @@ class ElectionDay extends React.Component {
     }
 
     async genVoterID() {
-        const res = await Parse.Cloud.run('genVoterId', { edId: this.state.id });
+        const res = await Parse.Cloud.run('genVoterId', { edID: this.state.id });
             this.setVoterID(res);
             console.log("Added voter ID " + res + " to election day " + this.state.id);
     }
