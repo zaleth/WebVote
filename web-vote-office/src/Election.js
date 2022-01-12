@@ -160,7 +160,7 @@ class Election extends React.Component {
 
     async deleteCandidate(id) {
         // delete from database before we update the list in state
-        await Parse.Cloud.run('deleteCandidate', {elId: this.state.id, cId: id});
+        await Parse.Cloud.run('deleteCandidate', {elID: this.state.id, cID: id});
         const list = [];
         this.state.cList.forEach( (e) => {
             if(e.id !== id)

@@ -20,7 +20,7 @@ class AddCandidateForm extends React.Component {
 
     async handleSubmit(event) {
         event.preventDefault();
-        await Parse.Cloud.run('addCandidate', {elId: this.props.elID, name: this.state.name});
+        await Parse.Cloud.run('addCandidate', {elID: this.props.elID, name: this.state.name});
         const Cand = Parse.Object.extend('Candidate');
         const query = new Parse.Query(Cand);
         query.equalTo('elID', this.props.elID);

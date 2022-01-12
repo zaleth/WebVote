@@ -100,7 +100,7 @@ class ElectionDay extends React.Component {
     }
 
     deleteElection(id) {
-        Parse.Cloud.run('deleteElection', {edId: this.state.id, elId: id});
+        Parse.Cloud.run('deleteElection', {edID: this.state.id, elID: id});
         const list = [];
         this.state.elections.forEach( (e) => {
             if(e.id !== id)
