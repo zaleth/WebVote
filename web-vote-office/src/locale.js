@@ -8,6 +8,7 @@ const data = {
         pickLang: "Choose language",
         login: "Login",
         webVoteAdmin: "WebVote Admin",
+        webVoteOffice: "WebVote Office",
         electionDays: "Election days",
         addElectionDay: "Add election day",
         addElection: "Add election",
@@ -24,6 +25,15 @@ const data = {
         password: "Password",
         passAgain: "Repeat password",
         newPass: "New password",
+        loggedInAs: "Logged in as",
+        clear: "Clear",
+        voterID: "Voter ID",
+        open: "Open",
+        close: "Close",
+        resetVotes: "Reset votes",
+        addVoter: "Add new voter",
+        eraseVoters: "Erase all voters",
+        voters: "voters"
     },
     sv: {
         longName: "Svenska",
@@ -31,6 +41,7 @@ const data = {
         pickLang: "Välj språk",
         login: "Logga in",
         webVoteAdmin: "WebVote Administration",
+        webVoteOffice: "WebVote Valkontor",
         electionDays: "Valdagar",
         addElectionDay: "Lägg till valdag",
         addElection: "Lägg till omröstning",
@@ -47,6 +58,15 @@ const data = {
         password: "Lösenord",
         passAgain: "Repetera lösenord",
         newPass: "Nytt lösenord",
+        loggedInAs: "Inloggad som",
+        clear: "Rensa",
+        voterID: "Röstningskod",
+        open: "Öppna",
+        close: "Stäng",
+        resetVotes: "Nollställ röster",
+        addVoter: "Skapa ny röstningskod",
+        eraseVoters: "Ta bort alla röstningskoder",
+        voters: "röstberättigade"
     }
 };
 

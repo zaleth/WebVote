@@ -11,6 +11,7 @@ class UserAdmin extends React.Component {
             id: props.id,
             name: props.name,
             newPass: "",
+            language: props.locale
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);

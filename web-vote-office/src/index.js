@@ -9,10 +9,13 @@ const Parse = require('parse');
 Parse.initialize(settings.APP_ID, settings.JS_KEY);
 Parse.serverURL = settings.PARSE_URL;
 
+const navLang = navigator.language || navigator.userLanguage || "en";
+const defLang = navLang.substring(0, 2);
+//console.log(defLang);
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App locale={defLang}/>
   </React.StrictMode>,
   document.getElementById('root')
 );
