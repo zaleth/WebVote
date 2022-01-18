@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Parse from './index';
 import Candidate from './Candidate';
 import AddCandidateForm from './AddCandidateForm';
+import { LocalePicker } from './locale';
 
 class Election extends React.Component {
 
@@ -17,6 +18,7 @@ class Election extends React.Component {
             cList: [],
             collapsed: true,
             newCandidate: false,
+            language: props.locale
         }
         this.delete = props.delete;
         this.addNewCandidate = this.addNewCandidate.bind(this);
@@ -82,13 +84,14 @@ class Election extends React.Component {
                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button> }
-                <button name="delete" onClick={() => this.delete()}>Delete</button>
+                <button name="delete" onClick={() => this.delete()}>{LocalePicker.getString('delete')}</button>
             </div>
             <div>
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
                     <ul>
                     {myState.cList.map( (e) =>
-                        <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}/>
+                        <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}
+                        locale={myState.language}/>
                         </li>)}
                     </ul>
                 : ""}
@@ -97,7 +100,8 @@ class Election extends React.Component {
                 <div>{myState.newCandidate ?
                 <AddCandidateForm elID={myState.id} onSubmit={this.addNewCandidate} 
                 onCancel={()=>this.setState({newCandidate: false})}/> : 
-                <button onClick={()=>this.setState({newCandidate: true})}>Add Candidate</button>}</div>}
+                <button onClick={()=>this.setState({newCandidate: true})}>
+                    {LocalePicker.getString('addCandidate')}</button>}</div>}
             </div>
             </div>
     )

@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 //import PropTypes from 'prop-types';
 import Parse from './index';
 import ElectionDay from './ElectionDay';
 import AddElectionDayForm from './AddElectionDayForm';
 import AddUserForm from './AddUserForm';
 import UserAdmin from './UserAdmin';
-import { Cloud } from 'parse';
+import { LocalePicker } from './locale';
 
 class AdminPage extends React.Component {
 
@@ -16,6 +16,7 @@ class AdminPage extends React.Component {
             eDayIds: [],
             showAddElectionForm: false,
             allUsers: [],
+            language: props.locale
         }
         this.eDayInfo = { name: "", date: "" };
         this.addElection = this.addElection.bind(this);
@@ -133,26 +134,29 @@ class AdminPage extends React.Component {
 
         return(
             <div className="admin">
-                <p>Election days</p>
+                <p>{LocalePicker.getString('electionDays')}</p>
                 <div className="list">
                     <ul>
                         {eDayList.map( (e) =>
-                        <li key={e}><ElectionDay id={e} delete={() => this.deleteElectionDay(e)}/></li> )}
+                        <li key={e}><ElectionDay id={e} delete={() => this.deleteElectionDay(e)}
+                        locale={this.state.language}/></li> )}
                     </ul>
                     {this.state.showAddElectionForm
                     ? <AddElectionDayForm onSubmit={this.addElection} onUpdate={this.updateEDay}
+                        locale={this.state.language}
                         onCancel={() => { this.setState({showAddElectionForm: false})}}/>
                     : <button name="addElection" onClick={() => 
-                        { this.setState({showAddElectionForm: true})}}>Add election day</button>}
+                        { this.setState({showAddElectionForm: true})}}>
+                            {LocalePicker.getString('addElectionDay')}</button>}
                 </div>
-                <button name="logout" onClick={this.logout}>Log out</button>
+                <button name="logout" onClick={this.logout}>{LocalePicker.getString('logout')}</button>
                 <div>
-                    <p>User administration</p>
+                    <p>{LocalePicker.getString('userAdmin')}</p>
                     <ul>
                         {userList.map( (e) => {return(<UserAdmin id={e.id} name={e.name}
-                            deleteUser={this.deleteUser}/>)})}
+                            deleteUser={this.deleteUser} locale={this.state.language}/>)})}
                     </ul>
-                    <AddUserForm addUser={this.addUser} />
+                    <AddUserForm addUser={this.addUser} locale={this.state.language}/>
                 </div>
             </div>
         )

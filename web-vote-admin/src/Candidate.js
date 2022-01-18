@@ -2,12 +2,13 @@
 import PropTypes from "prop-types";
 import React from "react";
 import Parse from './index';
+import { LocalePicker } from "./locale";
 
 class Candidate extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { id: props.id, elID: "", name: "", };
+        this.state = { id: props.id, elID: "", name: "", language: props.locale };
         this.delete = props.delete;
     }
 
@@ -30,7 +31,8 @@ class Candidate extends React.Component {
 
     render() {
         return(
-            <div>{this.state.name} <button name="delete" onClick={() => this.delete()}>Delete</button></div>
+            <div>{this.state.name} <button name="delete" onClick={() => this.delete()}>
+                {LocalePicker.getString('delete')}</button></div>
         );
     }
 }

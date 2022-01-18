@@ -1,11 +1,12 @@
 
 import React from 'react';
+import { LocalePicker } from './locale';
 
 class AddUserForm extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { name: "", pass1: "", pass2: "", msg: "" };
+        this.state = { name: "", pass1: "", pass2: "", msg: "", language: props.locale };
         this.addUser = props.addUser;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -35,19 +36,19 @@ class AddUserForm extends React.Component {
         return (
             <form onSubmit={this.handleSubmit}>
                 <label>
-                    Name:
+                    {LocalePicker.getString('name')}:
                     <input type="text" name="name" value={this.state.name} onChange={this.handleChange} />
                 </label><br />
                 <label>
-                    Password:
+                    {LocalePicker.getString('password')}:
                     <input type="password" name="pass1" value={this.state.pass1} onChange={this.handleChange} />
                 </label><br />
                 <label>
-                    Repeat password:
+                    {LocalePicker.getString('passAgain')}:
                     <input type="password" name="pass2" value={this.state.pass2} onChange={this.handleChange} />
                 </label><br />
-                <input type="submit" value="Add user" />
-                <input type="reset" value="Reset form" />
+                <input type="submit" value={LocalePicker.getString('addUser')} />
+                <input type="reset" value={LocalePicker.getString('cancel')} />
                 <label>{this.state.msg}</label>
             </form>
 

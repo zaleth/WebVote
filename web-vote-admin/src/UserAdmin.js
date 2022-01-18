@@ -1,6 +1,7 @@
 
 import React from "react";
 import Parse from './index';
+import { LocalePicker } from "./locale";
 
 class UserAdmin extends React.Component {
 
@@ -20,6 +21,7 @@ class UserAdmin extends React.Component {
         event.preventDefault();
         const myState = this.state;
         const res = await Parse.Cloud.run('changeUserPassword', { id: myState.id, newPass: myState.newPass});
+        console.log(res);
 
     }
 
@@ -33,16 +35,16 @@ class UserAdmin extends React.Component {
 
         return(
             <li key={myState.id} id={myState.id}>
-                {myState.name}
                 <form onSubmit={this.handleSubmit}>
+                {myState.name}-&gt;
                     <label>
-                        New password:
+                        {LocalePicker.getString('newPass')}:
                         <input type="password" name="newPass" value={this.state.newPass}
                             onChange={this.handleChange} />
-                        <input type="submit" value="Change password" />
+                        <input type="submit" value={LocalePicker.getString('change')} />
                     </label>
+                    <button onClick={() => this.deleteUser(myState.id)}>{LocalePicker.getString('delete')}</button>
                 </form>
-                <button onClick={() => this.deleteUser(myState.id)}>Delete</button>
             </li>
         );
     }
