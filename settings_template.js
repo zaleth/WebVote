@@ -10,6 +10,9 @@ const settings = {
     
     ADMIN_USER: '',
     ADMIN_PASS: '',
+
+    VOTER_USER: '',
+    VOTER_PASS: '',
     };
     
     export default settings;
