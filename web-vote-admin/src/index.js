@@ -11,7 +11,7 @@ Parse.serverURL = settings.PARSE_URL;
 
 const navLang = navigator.language || navigator.userLanguage || "en";
 const defLang = navLang.substring(0, 2);
-console.log(defLang);
+//console.log(defLang);
 
 ReactDOM.render(
   <React.StrictMode>

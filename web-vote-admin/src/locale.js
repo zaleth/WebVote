@@ -70,7 +70,7 @@ export class LocalePicker extends React.Component {
   
     handleLocaleChange(e) {
       e.preventDefault();
-      console.log("New locale", e.target.value);
+      //console.log("New locale", e.target.value);
       this.setState({ language: e.target.value }, () => {this.onLocaleChange(this.state.language)});
     }
     
@@ -81,12 +81,12 @@ export class LocalePicker extends React.Component {
     render() {
         //strings.setLanguage(this.state.language);
         //console.log(strings.getLanguage(strings), this.state.language);
-        console.log(data[this.state.language].pickLang);
+        //console.log(data[this.state.language].pickLang);
         return(
             <div>
                 {data[this.state.language].pickLang} <select onChange={this.handleLocaleChange}>
                 {Object.keys(data).map( (e) => {
-                    console.log(e, longText[e], data[e].longName);
+                    //console.log(e, longText[e], data[e].longName);
                     return(<option key={e} value={e}>{data[e].longName}</option>);
                 })}
                 </select>

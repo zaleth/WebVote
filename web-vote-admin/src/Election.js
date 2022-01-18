@@ -10,7 +10,7 @@ class Election extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Election ID: " + props.id);
+        //console.log("Election ID: " + props.id);
         this.state = {
             id: props.id,
             name: "",
@@ -29,7 +29,7 @@ class Election extends React.Component {
             const Elec = Parse.Object.extend('Election');
             const query = new Parse.Query(Elec);
             query.get(this.state.id).then( (e) => {
-                console.log("Found election id " + e.id + " <- " + e.get('edID') + " with " + e.get('cList'));
+                //console.log("Found election id " + e.id + " <- " + e.get('edID') + " with " + e.get('cList'));
                 const list = [];
                 const Cand = Parse.Object.extend('Candidate');
                 const iQuery = new Parse.Query(Cand);
@@ -58,7 +58,7 @@ class Election extends React.Component {
     }
 
     componentDidUpdate(newProps, newState) {
-        console.log(this.state.language, newProps.locale, newProps, newState)
+        //console.log(this.state.language, newProps.locale, newProps, newState)
         if(this.state.language !== newProps.locale) {
             this.setState( {language: newProps.locale} );
         }
@@ -67,7 +67,7 @@ class Election extends React.Component {
     addNewCandidate(e) {
         const list = this.state.cList;
         list.push(e);
-        console.log("Added candidate " + e.id + ": " + e.get('name'));
+        //console.log("Added candidate " + e.id + ": " + e.get('name'));
         this.setState({ 'cList': list, newCandidate: false });
     }
 

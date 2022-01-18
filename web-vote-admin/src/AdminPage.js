@@ -26,7 +26,7 @@ class AdminPage extends React.Component {
         this.logout = this.logout.bind(this);
         this.addUser = this.addUser.bind(this);
         this.deleteUser = this.deleteUser.bind(this);
-        console.log("Default " + this.eDayInfo.name + "@" + this.eDayInfo.date);
+        //console.log("Default " + this.eDayInfo.name + "@" + this.eDayInfo.date);
     }
 
     componentDidMount() {
@@ -35,14 +35,14 @@ class AdminPage extends React.Component {
     }
 
     componentDidUpdate(newProps, newState) {
-        console.log(this.state.language, newProps.locale, newProps, newState)
+        //console.log(this.state.language, newProps.locale, newProps, newState)
         if(this.state.language !== newProps.locale) {
             this.setState( {language: newProps.locale} );
         }
     }
 
     loadElectionDays() {
-        console.log("Loading election days");
+        //console.log("Loading election days");
 
         const EDay = Parse.Object.extend('ElectionDay');
         const query = new Parse.Query(EDay);
@@ -63,14 +63,14 @@ class AdminPage extends React.Component {
         //console.log(res);
             const list = [];
             res.forEach( (u) => {
-                console.log(u.id, u.get('username'));
+                //console.log(u.id, u.get('username'));
                 list.push( {id: u.id, name: u.get('username')});
             });
             this.setState( {allUsers: list});
     }
 
     async addUser(name, pass) {
-        console.log("addUser", name, pass);
+        //console.log("addUser", name, pass);
         if(!name || name === "")
             return;
 
@@ -79,7 +79,7 @@ class AdminPage extends React.Component {
 
         const res = await Parse.Cloud.run('addUser', {name: name, pass: pass});
             const list = this.state.allUsers;
-            console.log(res);
+            //console.log(res);
             list.push( {id: res.id, name: name});
             this.setState( {allUsers: list});
     }
@@ -96,7 +96,7 @@ class AdminPage extends React.Component {
         const list = this.state.eDayIds;
         try {
             list.push(e.id);
-            console.log("Saved new election " + e.id + ": " + e.get('edName') + "@" + e.get('edDate'));
+            //console.log("Saved new election " + e.id + ": " + e.get('edName') + "@" + e.get('edDate'));
             this.setState( {eDayIds: list, showAddElectionForm: false} );
         } catch(error) {
             console.log(error);
@@ -109,7 +109,7 @@ class AdminPage extends React.Component {
         } else if(field === "date") {
             this.eDayInfo = { name: this.eDayInfo.name, date: value};
         }
-        console.log(field + " is now " + value);
+        //console.log(field + " is now " + value);
     }
 
     deleteElectionDay(id) {
@@ -160,7 +160,7 @@ class AdminPage extends React.Component {
                 <div>
                     <p>{LocalePicker.getString('userAdmin')}</p>
                     <ul>
-                        {userList.map( (e) => {return(<UserAdmin id={e.id} name={e.name}
+                        {userList.map( (e) => {return(<UserAdmin key={e.id} id={e.id} name={e.name}
                             deleteUser={this.deleteUser} locale={this.state.language}/>)})}
                     </ul>
                     <AddUserForm addUser={this.addUser} locale={this.state.language}/>

@@ -18,7 +18,7 @@ class UserAdmin extends React.Component {
     }
 
     componentDidUpdate(newProps, newState) {
-        console.log(this.state.language, newProps.locale, newProps, newState)
+        //console.log(this.state.language, newProps.locale, newProps, newState)
         if(this.state.language !== newProps.locale) {
             this.setState( {language: newProps.locale} );
         }
@@ -28,7 +28,7 @@ class UserAdmin extends React.Component {
         event.preventDefault();
         const myState = this.state;
         const res = await Parse.Cloud.run('changeUserPassword', { id: myState.id, newPass: myState.newPass});
-        console.log(res);
+        //console.log(res);
 
     }
 

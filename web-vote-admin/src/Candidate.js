@@ -17,7 +17,7 @@ class Candidate extends React.Component {
             const Cand = Parse.Object.extend('Candidate');
             const query = new Parse.Query(Cand);
             query.get(this.state.id).then( (e) => {
-                console.log("Found candidate id " + e.id + " <- " + e.get('elID') + ": " + e.get('name'));
+                //console.log("Found candidate id " + e.id + " <- " + e.get('elID') + ": " + e.get('name'));
                     this.setState( {
                         elID: e.get('elID'),
                         name: e.get('name'),
@@ -30,7 +30,7 @@ class Candidate extends React.Component {
     }
 
     componentDidUpdate(newProps, newState) {
-        console.log(this.state.language, newProps.locale, newProps, newState)
+        //console.log(this.state.language, newProps.locale, newProps, newState)
         if(this.state.language !== newProps.locale) {
             this.setState( {language: newProps.locale} );
         }

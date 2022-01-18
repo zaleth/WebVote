@@ -29,7 +29,7 @@ class ElectionDay extends React.Component {
             const EDay = Parse.Object.extend('ElectionDay');
             const query = new Parse.Query(EDay);
             query.get(this.state.id).then( (ed) => {
-                console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
+                //console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
                 const id = ed.id;
                 const list = [];
                 const Elec = Parse.Object.extend('Election');
@@ -49,7 +49,7 @@ class ElectionDay extends React.Component {
                         date: new Date(ed.get('edDate')),
                         elections: list,
                     });
-                    console.log("state set for '" + this.state.name + "'");
+                    //console.log("state set for '" + this.state.name + "'");
                 }, (error) => {
                     console.log("Error getting elections: " + error);
                 });
@@ -118,7 +118,7 @@ class ElectionDay extends React.Component {
 
     render() {
         const myState = this.state;
-        console.log(this.state.id, this.state.name, typeof this.state.date);
+        //console.log(this.state.id, this.state.name, typeof this.state.date);
         const myDateStr = new Date(myState.date).toLocaleDateString(LocalePicker.getString('locale'),
         {weekday: 'short', month: 'short', year: 'numeric', day: 'numeric'});
         return(

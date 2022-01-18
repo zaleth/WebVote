@@ -13,7 +13,7 @@ class AddUserForm extends React.Component {
     }
 
     componentDidUpdate(newProps, newState) {
-        console.log(this.state.language, newProps.locale, newProps, newState)
+        //console.log(this.state.language, newProps.locale, newProps, newState)
         if(this.state.language !== newProps.locale) {
             this.setState( {language: newProps.locale} );
         }
