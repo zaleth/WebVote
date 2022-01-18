@@ -84,7 +84,7 @@ export class LocalePicker extends React.Component {
         //console.log(data[this.state.language].pickLang);
         return(
             <div>
-                {data[this.state.language].pickLang} <select onChange={this.handleLocaleChange}>
+                {data[this.state.language].pickLang} <select defaultValue={this.state.language} onChange={this.handleLocaleChange}>
                 {Object.keys(data).map( (e) => {
                     //console.log(e, longText[e], data[e].longName);
                     return(<option key={e} value={e}>{data[e].longName}</option>);
