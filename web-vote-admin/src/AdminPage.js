@@ -34,6 +34,13 @@ class AdminPage extends React.Component {
         this.loadAllUsers();
     }
 
+    componentDidUpdate(newProps, newState) {
+        console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     loadElectionDays() {
         console.log("Loading election days");
 

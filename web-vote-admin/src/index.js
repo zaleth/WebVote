@@ -12,7 +12,7 @@ Parse.serverURL = settings.PARSE_URL;
 
 ReactDOM.render(
   <React.StrictMode>
-    <App user={settings.ADMIN_USER} pass={settings.ADMIN_PASS}/>
+    <App user={settings.ADMIN_USER} pass={settings.ADMIN_PASS} locale="en"/>
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -46,7 +46,7 @@ class ElectionDay extends React.Component {
                     });
                     this.setState( {
                         name: ed.get('edName'),
-                        date: new Date(ed.get('edDate')).toDateString(),
+                        date: new Date(ed.get('edDate')),
                         elections: list,
                     });
                     console.log("state set for '" + this.state.name + "'");
@@ -119,8 +119,10 @@ class ElectionDay extends React.Component {
     render() {
         const myState = this.state;
         console.log(this.state.id, this.state.name, typeof this.state.date);
+        const myDateStr = new Date(myState.date).toLocaleDateString(LocalePicker.getString('locale'),
+        {weekday: 'short', month: 'short', year: 'numeric', day: 'numeric'});
         return(
-                <div>{myState.name} ({myState.date}) {myState.collapsed 
+                <div>{myState.name} ({myDateStr}) {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button>
                     

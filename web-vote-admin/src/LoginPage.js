@@ -13,6 +13,13 @@ class LoginPage extends React.Component {
         this.doLogout = this.doLogout.bind(this);
     }
 
+    componentDidUpdate(newProps, newState) {
+        console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     async doLogin() {
         console.log(this.state.user, this.state.pass);
         const user = await Parse.User.logIn(this.state.user, this.state.pass);

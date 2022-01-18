@@ -17,6 +17,13 @@ class UserAdmin extends React.Component {
         this.deleteUser = props.deleteUser;
     }
 
+    componentDidUpdate(newProps, newState) {
+        console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     async handleSubmit(event) {
         event.preventDefault();
         const myState = this.state;

@@ -4,6 +4,7 @@ import React from "react";
 const data = {
     en: {
         longName: "English",
+        locale: "en",
         pickLang: "Choose language",
         login: "Login",
         webVoteAdmin: "WebVote Admin",
@@ -26,6 +27,7 @@ const data = {
     },
     sv: {
         longName: "Svenska",
+        locale: "sv",
         pickLang: "Välj språk",
         login: "Logga in",
         webVoteAdmin: "WebVote Administration",

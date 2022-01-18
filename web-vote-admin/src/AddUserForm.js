@@ -12,6 +12,13 @@ class AddUserForm extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    componentDidUpdate(newProps, newState) {
+        console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     handleChange(event) {
         this.setState( {[event.target.name]: event.target.value} );
         //this.props.onUpdate(event.target.name, event.target.value);

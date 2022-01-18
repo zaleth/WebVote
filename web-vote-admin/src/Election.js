@@ -57,6 +57,13 @@ class Election extends React.Component {
 
     }
 
+    componentDidUpdate(newProps, newState) {
+        console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     addNewCandidate(e) {
         const list = this.state.cList;
         list.push(e);

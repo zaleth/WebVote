@@ -29,6 +29,13 @@ class Candidate extends React.Component {
 
     }
 
+    componentDidUpdate(newProps, newState) {
+        console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     render() {
         return(
             <div>{this.state.name} <button name="delete" onClick={() => this.delete()}>

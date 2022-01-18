@@ -8,11 +8,18 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.props = props;
-    this.state = { language: 'en' };
+    this.state = { language: props.locale };
     this.onChangeLocale = this.onChangeLocale.bind(this);
   }
 
-  onChangeLocale(lang) {
+  componentDidUpdate(newProps, newState) {
+    console.log(this.state.language, newProps.locale, newProps, newState)
+    if(this.state.language !== newProps.locale) {
+        this.setState( {language: newProps.locale} );
+    }
+}
+
+onChangeLocale(lang) {
     this.setState( {language: lang} );
   }
 
