@@ -3,12 +3,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Parse from './index';
 import Candidate from './Candidate';
+import { LocalePicker } from './locale';
 
 class Election extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Election ID: " + props.id);
+        //console.log("Election ID: " + props.id);
         this.state = {
             id: props.id,
             name: "",
@@ -21,6 +22,7 @@ class Election extends React.Component {
             sumVotes: 0,
             castVotes: [],
             pollInterval: 0, // poll interval in ms, set to 0 to disable polling
+            language: props.locale
         }
         this.delete = props.delete;
         this.resetVotes = this.resetVotes.bind(this);
@@ -33,7 +35,7 @@ class Election extends React.Component {
             const Elec = Parse.Object.extend('Election');
             const query = new Parse.Query(Elec);
             query.get(this.state.id).then( (e) => {
-                console.log("Found election id " + e.id + " <- " + e.get('edID') + " with " + e.get('cList'));
+                //console.log("Found election id " + e.id + " <- " + e.get('edID') + " with " + e.get('cList'));
                 const list = [];
                 const Cand = Parse.Object.extend('Candidate');
                 const iQuery = new Parse.Query(Cand);
@@ -64,7 +66,7 @@ class Election extends React.Component {
             this.interval = setInterval(this.tick, this.state.pollInterval);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(newProps, prevState) {
         if((this.state.open) && (!prevState.open)) {
             // election was just opened, start the timer
             if(this.state.pollInterval > 0)
@@ -76,7 +78,12 @@ class Election extends React.Component {
                 this.tick();
             }
         }
-    }
+            //console.log(this.state.language, newProps.locale, newProps, newState)
+            if(this.state.language !== newProps.locale) {
+                this.setState( {language: newProps.locale} );
+            }
+    
+        }
 
     componentWillUnmount() {
         // cancel the poll timer
@@ -186,14 +193,17 @@ class Election extends React.Component {
                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button> }
-                <button onClick={this.toggleOpen}>{myState.open ? "Close" : "Open"}</button>
-                <button onClick={this.resetVotes} disabled={myState.open}>Reset votes</button>
+                <button onClick={this.toggleOpen}>{myState.open ? 
+                LocalePicker.getString('close') : LocalePicker.getString('open')}</button>
+                <button onClick={this.resetVotes} disabled={myState.open}>
+                    {LocalePicker.getString('resetVotes')}</button>
             </div>
             <div>
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
                     <ul>
                     {myState.cList.map( (e) =>
-                        <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}/>
+                        <li key={e.id}><Candidate id={e.id} delete={() => this.deleteCandidate(e.id)}
+                         locale={myState.language}/>
                         {myState.open ? "" : [this.votesForCand(e.id)]} </li>)}
                     </ul>
                 : ""}

@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Parse from './index';
 import Election from './Election';
-
+import { LocalePicker } from './locale';
 
 class ElectionDay extends React.Component {
 
@@ -17,6 +17,7 @@ class ElectionDay extends React.Component {
             collapsed: true,
             newElection: false,
             voters: 0,
+            language: props.locale
         }
         this.stuffBallots = this.stuffBallots.bind(this);
         this.genVoterID = this.genVoterID.bind(this);
@@ -31,7 +32,7 @@ class ElectionDay extends React.Component {
             const query = new Parse.Query(EDay);
             query.get(this.state.id).then( (ed) => {
                 ed.set('edDate', new Date(ed.get('edDate')).toDateString());
-                console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
+                //console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
                 const id = ed.id;
                 const list = [];
                 const Elec = Parse.Object.extend('Election');
@@ -68,7 +69,7 @@ class ElectionDay extends React.Component {
                         date: ed.get('edDate'),
                         elections: list,
                     });
-                    console.log("state set for '" + this.state.name + "'");
+                    //console.log("state set for '" + this.state.name + "'");
                 }, (error) => {
                     console.log("Error getting elections: " + error);
                 });
@@ -77,6 +78,13 @@ class ElectionDay extends React.Component {
             });
         }
         this.countVoters();
+    }
+
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
     }
 
     shuffle(array) {
@@ -132,7 +140,7 @@ class ElectionDay extends React.Component {
             });
     
         }
-        console.log("Stuffing done, doing recount");
+        //console.log("Stuffing done, doing recount");
         this.countVoters();
     }
 
@@ -159,26 +167,29 @@ class ElectionDay extends React.Component {
     }
 
     async eraseVoters() {
-        await Parse.Cloud.run('eraseVoters', {elID: this.state.id});
+        await Parse.Cloud.run('eraseVoters', {edID: this.state.id});
     }
 
     render() {
         const myState = this.state;
-        console.log(this.state.id, this.state.name);
+        //console.log(this.state.id, this.state.name);
         //this.countVoters();
+        const myDateStr = new Date(myState.date).toLocaleDateString(LocalePicker.getString('locale'),
+        {weekday: 'short', month: 'short', year: 'numeric', day: 'numeric'});
         return(
-                <div>{myState.name} ({myState.date}) [{myState.voters} voters] {myState.collapsed 
+                <div>{myState.name} ({myDateStr}) [{myState.voters} {LocalePicker.getString('voters')}]
+                 {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setCollapsed(false)}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setCollapsed(true)}> v </button>}
-                    <button name="stuff" onClick={this.stuffBallots}>Stuff ballots</button>
-                    <button onClick={this.genVoterID}>Add new voter</button>
-                        <button onClick={this.eraseVoters}>Erase all voters</button>
+                    
+                    <button onClick={this.genVoterID}>{LocalePicker.getString('addVoter')}</button>
+                        <button onClick={this.eraseVoters}>{LocalePicker.getString('eraseVoters')}</button>
                 
                 <div>
                     {((!myState.collapsed) && (myState.elections.length > 0)) ?
                         <ul>
                         {myState.elections.map( (e) =>
-                            <li key={e.id}><Election id={e.id}/>
+                            <li key={e.id}><Election id={e.id} locale={myState.language}/>
                             </li>)}
                         </ul>
                     : ""}

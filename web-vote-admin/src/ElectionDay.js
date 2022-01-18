@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Parse from './index';
 import Election from './Election';
 import AddElectionForm from './AddElectionForm';
+import { LocalePicker } from './locale';
 
 class ElectionDay extends React.Component {
 
@@ -16,6 +17,7 @@ class ElectionDay extends React.Component {
             elections: [],
             collapsed: true,
             newElection: false,
+            language: props.locale
         }
         this.addNewElection = this.addNewElection.bind(this);
         this.deleteElection = this.deleteElection.bind(this);
@@ -27,7 +29,7 @@ class ElectionDay extends React.Component {
             const EDay = Parse.Object.extend('ElectionDay');
             const query = new Parse.Query(EDay);
             query.get(this.state.id).then( (ed) => {
-                console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
+                //console.log("Found election day id " + ed.id + ": " + ed.get('edName') + "@" + ed.get('edDate'));
                 const id = ed.id;
                 const list = [];
                 const Elec = Parse.Object.extend('Election');
@@ -44,10 +46,10 @@ class ElectionDay extends React.Component {
                     });
                     this.setState( {
                         name: ed.get('edName'),
-                        date: new Date(ed.get('edDate')).toDateString(),
+                        date: new Date(ed.get('edDate')),
                         elections: list,
                     });
-                    console.log("state set for '" + this.state.name + "'");
+                    //console.log("state set for '" + this.state.name + "'");
                 }, (error) => {
                     console.log("Error getting elections: " + error);
                 });
@@ -116,18 +118,21 @@ class ElectionDay extends React.Component {
 
     render() {
         const myState = this.state;
-        console.log(this.state.id, this.state.name, typeof this.state.date);
+        //console.log(this.state.id, this.state.name, typeof this.state.date);
+        const myDateStr = new Date(myState.date).toLocaleDateString(LocalePicker.getString('locale'),
+        {weekday: 'short', month: 'short', year: 'numeric', day: 'numeric'});
         return(
-                <div>{myState.name} ({myState.date}) {myState.collapsed 
+                <div>{myState.name} ({myDateStr}) {myState.collapsed 
                     ? <button name="expand" onClick={()=>this.setState({collapsed: false})}> &gt; </button>
                     : <button name="collapse" onClick={()=>this.setState({collapsed: true})}> v </button>
                     
-                } <button onClick={() => this.delete()}>Delete</button>
+                } <button onClick={() => this.delete()}>{LocalePicker.getString('delete')}</button>
                 <div >
                     {((!myState.collapsed) && (myState.elections.length > 0)) ?
                         <ul >
                         {myState.elections.map( (e) =>
-                            <li key={e.id}><Election id={e.id} delete={() => this.deleteElection(e.id)}/>
+                            <li key={e.id}><Election id={e.id} delete={() => this.deleteElection(e.id)}
+                            locale={myState.language}/>
                             </li>)}
                         </ul>
                     : ""}
@@ -136,8 +141,9 @@ class ElectionDay extends React.Component {
                 <div>{myState.collapsed ? "" : 
                 <div>{myState.newElection ?
                     <AddElectionForm edID={myState.id} onSubmit={this.addNewElection} 
-                    onCancel={()=>this.setState({newElection: false})}/> :
-                     <button onClick={()=>this.setState({newElection: true})}>Add election</button>}</div>}
+                    locale={myState.language} onCancel={()=>this.setState({newElection: false})}/> :
+                     <button onClick={()=>this.setState({newElection: true})}>
+                         {LocalePicker.getString('addElection')}</button>}</div>}
                     
                 </div>
                 </div>

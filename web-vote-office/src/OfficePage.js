@@ -3,7 +3,7 @@ import React from 'react';
 //import PropTypes from 'prop-types';
 import Parse from './index';
 import ElectionDay from './ElectionDay';
-
+import { LocalePicker } from './locale';
 
 class OfficePage extends React.Component {
 
@@ -12,12 +12,20 @@ class OfficePage extends React.Component {
         this.state = {
             eDayIds: [],
             voterIDToShow: "",
+            language: props.locale,
         }
         this.props = props;
         this.doLogout = props.logout;
         this.logout = this.logout.bind(this);
         this.setVoterID = this.setVoterID.bind(this);
         this.clearVoterID = this.clearVoterID.bind(this);
+    }
+
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
     }
 
     setVoterID(id) {
@@ -33,7 +41,7 @@ class OfficePage extends React.Component {
     }
 
     loadElectionDays() {
-        console.log("Loading election days");
+        //console.log("Loading election days");
 
         const EDay = Parse.Object.extend('ElectionDay');
         const query = new Parse.Query(EDay);
@@ -61,22 +69,22 @@ class OfficePage extends React.Component {
 
         return(
             <div className="office">
-                <p>Logged in as {Parse.User.current().getUsername()}</p>
-                <p>Election days</p>
+                <p>{LocalePicker.getString('loggedInAs')} {Parse.User.current().getUsername()}</p>
+                <p>{LocalePicker.getString('electionDays')}</p>
                 <div className="list">
                     <ul>
                         {eDayList.map( (e) =>
-                        <li key={e}><ElectionDay id={e} showID={this.setVoterID}/>
+                        <li key={e}><ElectionDay id={e} showID={this.setVoterID} locale={this.state.language}/>
                         </li> )}
                     </ul>
                 </div>
                 <div className="voterID">
                     {voterID !== "" ? 
-                    <p><label>Voter ID: {voterID}</label>
-                    <button onClick={this.clearVoterID}>Clear ID</button></p>
+                    <p><label>{LocalePicker.getString('voterID')}: {voterID}</label>
+                    <button onClick={this.clearVoterID}>{LocalePicker.getString('clear')}</button></p>
                     : "" }
                 </div>
-                <button name="logout" onClick={this.logout}>Log out</button>
+                <button name="logout" onClick={this.logout}>{LocalePicker.getString('logout')}</button>
             </div>
         )
     }

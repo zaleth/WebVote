@@ -2,15 +2,23 @@
 import PropTypes from "prop-types";
 import React from "react";
 import Parse from './index';
+import { LocalePicker } from "./locale";
 
 class AddCandidateForm extends React.Component {
 
     constructor(props) {
         super(props);
         this.props = props;
-        this.state = { name: "",  };
+        this.state = { name: "", language: props.locale  };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
     }
 
     handleChange(event) {
@@ -34,11 +42,11 @@ class AddCandidateForm extends React.Component {
         return(
             <form onSubmit={this.handleSubmit}>
                 <label>
-                    Name:
+                    {LocalePicker.getString('name')}:
                     <input type="text" name="name" value={this.state.name} onChange={this.handleChange} />
                 </label><br />
-                <input type="submit" value="Add candidate" />
-                <button onClick={this.props.onCancel}>Cancel</button>
+                <input type="submit" value={LocalePicker.getString('addCandidate')} />
+                <button onClick={this.props.onCancel}>{LocalePicker.getString('cancel')}</button>
             </form>
         )
     }

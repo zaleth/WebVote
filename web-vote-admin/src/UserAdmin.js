@@ -1,6 +1,7 @@
 
 import React from "react";
 import Parse from './index';
+import { LocalePicker } from "./locale";
 
 class UserAdmin extends React.Component {
 
@@ -10,16 +11,25 @@ class UserAdmin extends React.Component {
             id: props.id,
             name: props.name,
             newPass: "",
+            language: props.locale
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.deleteUser = props.deleteUser;
     }
 
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     async handleSubmit(event) {
         event.preventDefault();
         const myState = this.state;
         const res = await Parse.Cloud.run('changeUserPassword', { id: myState.id, newPass: myState.newPass});
+        //console.log(res);
 
     }
 
@@ -33,16 +43,16 @@ class UserAdmin extends React.Component {
 
         return(
             <li key={myState.id} id={myState.id}>
-                {myState.name}
                 <form onSubmit={this.handleSubmit}>
+                {myState.name}-&gt;
                     <label>
-                        New password:
+                        {LocalePicker.getString('newPass')}:
                         <input type="password" name="newPass" value={this.state.newPass}
                             onChange={this.handleChange} />
-                        <input type="submit" value="Change password" />
+                        <input type="submit" value={LocalePicker.getString('change')} />
                     </label>
+                    <button onClick={() => this.deleteUser(myState.id)}>{LocalePicker.getString('delete')}</button>
                 </form>
-                <button onClick={() => this.deleteUser(myState.id)}>Delete</button>
             </li>
         );
     }

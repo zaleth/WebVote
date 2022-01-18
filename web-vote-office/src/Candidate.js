@@ -2,12 +2,13 @@
 import PropTypes from "prop-types";
 import React from "react";
 import Parse from './index';
+import { LocalePicker } from "./locale";
 
 class Candidate extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { id: props.id, elID: "", name: "", };
+        this.state = { id: props.id, elID: "", name: "", language: props.locale };
         this.delete = props.delete;
     }
 
@@ -16,7 +17,7 @@ class Candidate extends React.Component {
             const Cand = Parse.Object.extend('Candidate');
             const query = new Parse.Query(Cand);
             query.get(this.state.id).then( (e) => {
-                console.log("Found candidate id " + e.id + " <- " + e.get('elID') + ": " + e.get('name'));
+                //console.log("Found candidate id " + e.id + " <- " + e.get('elID') + ": " + e.get('name'));
                     this.setState( {
                         elID: e.get('elID'),
                         name: e.get('name'),
@@ -28,9 +29,17 @@ class Candidate extends React.Component {
 
     }
 
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     render() {
         return(
-            <div>{this.state.name} <button name="delete" onClick={() => this.delete()}>Delete</button></div>
+            <div>{this.state.name} <button name="delete" onClick={() => this.delete()}>
+                {LocalePicker.getString('delete')}</button></div>
         );
     }
 }

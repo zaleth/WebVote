@@ -3,7 +3,7 @@ import React from 'react';
 //import PropTypes from 'prop-types';
 import Parse from './index';
 import Election from './Election';
-
+import { LocalePicker } from './locale';
 
 class VoterPage extends React.Component {
 
@@ -13,8 +13,10 @@ class VoterPage extends React.Component {
             id: props.id,
             edID: props.edID,
             edName: "",
+            edDate: "",
             elections: [],
             logout: false,
+            language: props.locale
         }
         this.props = props;
         this.doLogout = props.logout;
@@ -25,8 +27,15 @@ class VoterPage extends React.Component {
         this.loadElections();
     }
 
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     loadElections() {
-        console.log("Loading elections");
+        //console.log("Loading elections");
 
         const Elec = Parse.Object.extend('Election');
         const query = new Parse.Query(Elec);
@@ -39,12 +48,12 @@ class VoterPage extends React.Component {
                 list.push(e.id);
             });
 
-            // Get the name of this election day
+            // Get the name and date of this election day
             const EDay = Parse.Object.extend('ElectionDay');
             const iQuery = new Parse.Query(EDay);
             iQuery.get(this.state.edID).then( (res) => {
-                console.log("Found EDay " + res.get('edName'))
-                this.setState( {edName: res.get('edName')});
+                //console.log("Found EDay", res.get('edName'), res.get('edDate'))
+                this.setState( {edName: res.get('edName'), edDate: res.get('edDate')});
             }, (error) => {
                 console.log("Error getting election day: " + error);
             });
@@ -61,19 +70,22 @@ class VoterPage extends React.Component {
 
     render() {
 
-        const eList = this.state.elections;
+        const myState = this.state;
+        const eList = myState.elections;
+        const myDateStr = new Date(myState.edDate).toLocaleDateString(LocalePicker.getString('locale'),
+        {weekday: 'short', month: 'short', year: 'numeric', day: 'numeric'});
 
         return(
 
             <div className="admin">
-                <p>Elections for {this.state.edName}</p>
+                <p>{LocalePicker.getString('electionsFor')} {this.state.edName} ({myDateStr})</p>
                 <div className="list">
                     <ul>
                         {eList.map( (e) =>
-                        <li key={e}><Election id={e} voter={this.state.id}/></li> )}
+                        <li key={e}><Election id={e} voter={this.state.id} locale={this.state.language}/></li> )}
                     </ul>
                 </div>
-                <button name="logout" onClick={this.logout}>Log out</button>
+                <button name="logout" onClick={this.logout}>{LocalePicker.getString('logout')}</button>
             </div>
         )
     }

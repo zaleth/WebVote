@@ -2,13 +2,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Parse from './index';
-
+import { LocalePicker } from './locale';
 
 class Election extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Election ID: " + props.id);
+        //console.log("Election ID: " + props.id);
         this.state = {
             id: props.id,
             voteID: props.voter,
@@ -19,6 +19,7 @@ class Election extends React.Component {
             open: true,
             currentCandidate: "",
             chosenCandidates: [],
+            language: props.locale
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -30,7 +31,7 @@ class Election extends React.Component {
             const Elec = Parse.Object.extend('Election');
             const query = new Parse.Query(Elec);
             query.get(this.state.id).then( (e) => {
-                console.log("Found election id " + e.id + " <- " + e.get('edID') + " with " + e.get('cList'));
+                //console.log("Found election id " + e.id + " <- " + e.get('edID') + " with " + e.get('cList'));
                 const list = [];
                 const Cand = Parse.Object.extend('Candidate');
                 const iQuery = new Parse.Query(Cand);
@@ -43,7 +44,7 @@ class Election extends React.Component {
                             name: c.get('name'),
                         });
                     });
-                    console.log("Found " + list.length + " candidates for " + e.id);
+                    //console.log("Found " + list.length + " candidates for " + e.id);
                 }, (error) => {
                     console.log("Error loading candidate: " + error);
                 })
@@ -60,11 +61,19 @@ class Election extends React.Component {
 
     }
 
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     async registerVote(elID, cID, vID) {
         await Parse.Cloud.run('registerVote', {elID: elID, cID: cID, vID: vID});
     }
 
     handleSubmit(event) {
+        event.preventDefault();
         // has this voter voted already?
         const Vote = Parse.Object.extend('Vote');
         const query = new Parse.Query(Vote);
@@ -72,7 +81,7 @@ class Election extends React.Component {
         query.equalTo('elID', this.state.id);
         query.find().then( (res) => {
             if(res.length > 0) {
-                console.log(res);
+                //console.log(res);
                 this.setState( {collapsed: true} );
                 alert("You have already voted in this election");
             } else {
@@ -90,7 +99,6 @@ class Election extends React.Component {
         }, (error) => {
             console.log("Error casting vote: " + error);
         });
-        event.preventDefault();
     }
 
     handleChange(event) {
@@ -100,12 +108,12 @@ class Election extends React.Component {
         const myState = this.state;
         if(myState.votes > 1) {
             if(event.target.checked) {
-                console.log("checked");
+                //console.log("checked");
                 if(myState.chosenCandidates.length < myState.votes) {
                     const list = myState.chosenCandidates;
                     var isChecked = false;
                     for(var i = 0; (i < list.length) && !isChecked; i++) {
-                        console.log("comparing " + event)
+                        //console.log("comparing " + event)
                         if(event.target.id === list[i])
                             isChecked = true;
                     }
@@ -120,7 +128,7 @@ class Election extends React.Component {
                     event.target.checked = false;
                 }
             } else {
-                console.log("unchecked");
+                //console.log("unchecked");
                 const list = [];
                 myState.chosenCandidates.forEach( (e) => {
                     if(e !== event.target.id)
@@ -200,11 +208,11 @@ class Election extends React.Component {
                 {((!myState.collapsed) && (myState.cList.length > 0)) ?
                     <form onSubmit={this.handleSubmit}>
                         {myState.cList.map( (e) => { 
-                            return(<p><input id={e.id} type={type} name={myState.id} 
+                            return(<p><input key={e.id} id={e.id} type={type} name={myState.id} 
                                 onChange={this.handleChange} value={e.id} key={e.id}
                                 checked={this.isChecked(e)} />
                             <label htmlFor={e.id}>{e.name}</label></p>)})}
-                        <input type="submit" value="Cast vote" disabled={! myState.open}/>
+                        <input type="submit" value={LocalePicker.getString('castVote')} disabled={! myState.open}/>
                     </form>
                 : ""}
             

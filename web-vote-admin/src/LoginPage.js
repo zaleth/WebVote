@@ -2,18 +2,26 @@
 import React from "react";
 import Parse from './index';
 import AdminPage from './AdminPage';
+import { LocalePicker } from "./locale";
 
 class LoginPage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { user: props.user, pass: props.pass, loggedIn: false };
+        this.state = { user: props.user, pass: props.pass, loggedIn: false, language: props.locale };
         this.doLogin = this.doLogin.bind(this);
         this.doLogout = this.doLogout.bind(this);
     }
 
+    componentDidUpdate(newProps, newState) {
+        //console.log(this.state.language, newProps.locale, newProps, newState)
+        if(this.state.language !== newProps.locale) {
+            this.setState( {language: newProps.locale} );
+        }
+    }
+
     async doLogin() {
-        console.log(this.state.user, this.state.pass);
+        //console.log(this.state.user, this.state.pass);
         const user = await Parse.User.logIn(this.state.user, this.state.pass);
         if(user.authenticated())
             this.setState( {loggedIn: true} );
@@ -27,9 +35,9 @@ class LoginPage extends React.Component {
     render() {
         return (
             <div>
-                <h2>WebVote Admin</h2>
-                {this.state.loggedIn ? <AdminPage logout={this.doLogout}/> :
-                <button name="login" onClick={this.doLogin}>Log in</button>}
+                <h2>{LocalePicker.getString('webVoteAdmin')}</h2>
+                {this.state.loggedIn ? <AdminPage logout={this.doLogout} locale={this.state.language}/> :
+                <button name="login" onClick={this.doLogin}>{LocalePicker.getString('login')}</button>}
             </div>
         )
     }
